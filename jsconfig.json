@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "esnext"
+    },
+    "include": [
+        "node_modules/easeljs/lib/*",
+        "node_modules/tweenjs/lib/*",
+        "js/*"
+    ],
+    "exclude": [
+      "lib/*",
+      "build/*"
+    ]
+}

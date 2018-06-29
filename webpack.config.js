@@ -16,22 +16,26 @@ module.exports = {
         loader: 'babel-loader',
         query: {
           presets: [
-            ['es2015', { modules: false }],
-            'es2016',
-            'es2017',
-            'stage-2',
+            'env',
           ],
         },
       },
     ],
   },
   plugins: [
-    new HotModuleReplacementPlugin(),
+    new HotModuleReplacementPlugin({
+      multiStep: true,
+    }),
     new CopyWebpackPlugin([
       {
         from: 'index.html',
         to: '',
         toType: 'file',
+      },
+      {
+        from: 'assets',
+        to: 'assets',
+        toType: 'dir',
       },
       {
         from: 'node_modules/tweenjs/lib/tweenjs.min.js',
