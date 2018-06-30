@@ -1,12 +1,16 @@
 import shapes from '../shapes';
 
-const createjs = window.createjs;
+import createjs from 'createjs';
 createjs.MotionGuidePlugin.install();
 
 class Tracks {
   constructor() {
     this.tracks = new createjs.Container();
-    this.tweens = new createjs.Timeline();
+    this.tweens = [];
+
+    setInterval(() => {
+      this.reverse();
+    }, 1000);
 
     for (let i = 0; i < 10; i += 1) {
       const trackPart = new createjs.Bitmap(shapes.tracks.trackPart);
@@ -17,19 +21,27 @@ class Tracks {
       const tween = createjs.Tween.get(trackPart, { loop: true })
         .to({ guide: { path: [-15, -20, -30, -8, -21, 0] }, scaleY: 1 }, 2500)
         .to({ guide: { path: [-21, 0, -16, 15, 10, 25] }, scaleY: 0 }, 2500);
-      //tween.paused = true;
+      // tween.paused = true;
 
       tween.gotoAndPlay(i * 500);
       tween.reversed = true;
 
-      setInterval(() => {
-        tween.gotoAndPlay(tween.duration - tween.position);
-        tween.reversed = !tween.reversed;
-      }, 1000);
 
-
-      //this.tweens.addTween(tween);
+      this.tweens.push(tween);
     }
+  }
+
+  reverse() {
+    this.tweens.forEach((tween) => {
+      tween.gotoAndPlay(tween.duration - tween.position);
+      tween.reversed = !tween.reversed;
+    });
+  }
+
+  stop() {
+    this.tweens.forEach((tween) => {
+      tween.paused = true;
+    });
   }
 }
 

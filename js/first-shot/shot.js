@@ -1,29 +1,32 @@
+/* global createjs */
+
 import { tracksContainer, tracksRotatingTimeline } from '../tracks';
 import tankContainer from '../first-shot/tank';
 import shapes from '../shapes';
 import Smoke from '../first-shot/smoke';
-import shell from '../first-shot/shell';
+import Explosion from '../first-shot/explosion';
+import Firework from '../first-shot/fireworks';
 
-const createjs = window.createjs;
+function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
 
 const shot = new createjs.Container();
 const tank = new createjs.Container();
 
-const background = new createjs.Bitmap(shapes.shots.first.backgroud);
 const hill = new createjs.Bitmap(shapes.shots.first.hill);
+const hillLight = new createjs.Bitmap(shapes.shots.first.explosion.hillLight);
 const treeLeft = new createjs.Bitmap(shapes.shots.first.treeLeft);
 const treeRight = new createjs.Bitmap(shapes.shots.first.treeRight);
-const enjoy = new createjs.Bitmap(shapes.shots.first.enjoy);
-const wotLogo = new createjs.Bitmap(shapes.shots.first.wotLogo);
 
-background.x = -120;
-background.y = -120;
-shot.addChild(background);
+
+const firework = new Firework();
+shot.addChild(firework);
 
 const smoke0 = new Smoke(0.2).container;
 
-smoke0.y = 250;
-smoke0.x = 200;
+smoke0.y = 170;
+smoke0.x = 300;
 smoke0.scaleX = 2.5;
 smoke0.scaleY = 2.5;
 smoke0.alpha = 1;
@@ -61,6 +64,13 @@ shot.addChild(smoke2);
 
 shot.addChild(hill);
 hill.y = 140;
+hill.x = -100;
+
+
+shot.addChild(hillLight);
+hillLight.y = 143;
+hillLight.x = 4;
+hillLight.alpha = 0;
 
 shot.addChild(treeLeft);
 treeLeft.y = 250;
@@ -68,21 +78,6 @@ treeLeft.y = 250;
 shot.addChild(treeRight);
 treeRight.y = 250;
 treeRight.x = 100;
-
-shell.x = 290;
-shell.y = 179;
-
-shot.addChild(shell);
-
-enjoy.y = 210;
-enjoy.x = 92;
-
-shot.addChild(enjoy);
-
-wotLogo.y = 0;
-wotLogo.x = 60;
-
-shot.addChild(wotLogo);
 
 tracksContainer.skewX = 5;
 tracksContainer.skewY = 4.55;
@@ -111,6 +106,11 @@ smokeFromTurbineLeft.scale = 0.4;
 
 tankContainer.addChild(smokeFromTurbineLeft);
 
+const explosion = new Explosion();
+explosion.container.x = 255;
+explosion.container.y = 105;
+shot.addChild(explosion.container);
+
 
 const timeline = new createjs.Timeline({ loop: true, bounce: true });
 
@@ -118,6 +118,42 @@ const tankTween = createjs.Tween.get(tank).to({ x: tank.x + 30, y: tank.y + 6, s
 
 timeline.addTween(tankTween, ...tracksRotatingTimeline.tweens);
 
-createjs.Tween.get(shot).to({ x: shot.x - 150, y: shot.y + 60 }, 1000, createjs.Ease.quadInOut);
+const expodeFireworks = (number) => {
+  for (let i = 0; i < number; i += 1) {
+    setTimeout(() => firework.shoot(
+      getRandomArbitrary(200, 250),
+      getRandomArbitrary(0, 40),
+      getRandomArbitrary(250, 400),
+      getRandomArbitrary(-10, -60),
+      getRandomArbitrary(180, 360)),
+    100 + (i * 500) + getRandomArbitrary(0, 250));
+  }
+};
+
+shot.shoot = () => {
+  timeline.paused = true;
+
+  explosion.shoot();
+  createjs.Tween.get(hillLight)
+    .to({ alpha: 1 }, 100)
+    .to({ alpha: 0 }, 100);
+  tankContainer.blink();
+
+
+  createjs.Tween.get(tank)
+    .to({ x: tank.x -= 1, y: tank.y += 1 }, 100)
+    .to({ x: tank.x += 1, y: tank.y -= 1 }, 100);
+
+  createjs.Tween.get(shot)
+    .to({ x: shot.x -= 5, y: shot.y += 10 }, 100)
+    .to({ x: shot.x += 5, y: shot.y -= 10 }, 200)
+    .wait(500)
+    .to({ x: shot.x - 170, y: shot.y + 100 }, 2000, createjs.Ease.quadInOut)
+    .call(() => expodeFireworks(10))
+    .wait(1500)
+    .call(() => expodeFireworks(7))
+    .wait(3500)
+    .call(() => expodeFireworks(5));
+};
 
 export { shot as default };

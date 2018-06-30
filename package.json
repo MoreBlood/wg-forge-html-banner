@@ -11,6 +11,7 @@
   "author": "MoreBlood",
   "license": "ISC",
   "dependencies": {
+    "createjs": "^1.0.1",
     "easeljs": "^1.0.2",
     "tweenjs": "^1.0.2"
   },

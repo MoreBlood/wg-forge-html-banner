@@ -4,7 +4,7 @@ function getRandomArbitrary(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-const createjs = window.createjs;
+import createjs from 'createjs';
 
 class Smoke {
   constructor(timeScale = 1) {

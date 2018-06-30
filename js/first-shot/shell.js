@@ -1,51 +1,60 @@
 import shapes from '../shapes';
 
-const createjs = window.createjs;
+import createjs from 'createjs';
 
-const shellCountour = new createjs.Bitmap(shapes.shots.first.shellCountour);
-const shellFill = new createjs.Bitmap(shapes.shots.first.shellFill);
 
-const shellContainer = new createjs.Container();
+class Shell {
+  constructor() {
+    const shellCountour = new createjs.Bitmap(shapes.shots.first.shellCountour);
+    const shellFill = new createjs.Bitmap(shapes.shots.first.shellFill);
 
-const mask = new createjs.Shape();
-const circle = new createjs.Shape();
+    this.shellContainer = new createjs.Container();
+    
 
-mask.graphics.beginFill('#000000').drawRect(0, 90, 100, 100);
-circle.graphics.beginFill('#000000').drawRect(0, 0, 50, 100);
-circle.alpha = 0.01;
+    const mask = new createjs.Shape();
+    const circle = new createjs.Shape();
 
-shellFill.mask = mask;
+    mask.graphics.beginFill('#000000').drawRect(0, 90, 100, 100);
+    circle.graphics.beginFill('#000000').drawRect(0, 0, 50, 100);
+    circle.alpha = 0.01;
 
-let isFilled = false;
+    shellFill.mask = mask;
 
-const fillAnimation = createjs.Tween.get(mask, { paused: true })
-  .to({ y: -90 }, 2000);
+    let isFilled = false;
 
-let timeout;
+    const fillAnimation = createjs.Tween.get(mask, { paused: true })
+      .to({ y: -90 }, 2000);
 
-circle.on('mouseover', () => {
-  console.log('mouseover', isFilled);
-  if (isFilled) { return; }
-  fillAnimation.gotoAndPlay(fillAnimation.position);
-  fillAnimation.reversed = false;
+    let timeout;
 
-  clearTimeout(timeout);
-  timeout = setTimeout(() => {
-    isFilled = true;
-    fillAnimation.gotoAndPlay(fillAnimation.duration);
-  }, 2000);
-});
+    this.filled = new Promise((resolve) => {
+      circle.on('mouseover', () => {
+        console.log('mouseover', isFilled);
+        if (isFilled) { return; }
+        fillAnimation.gotoAndPlay(fillAnimation.position);
+        fillAnimation.reversed = false;
+  
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            resolve();
+          isFilled = true;
+          fillAnimation.gotoAndPlay(fillAnimation.duration);
+        }, 2000);
+      });
+    });
 
-circle.on('mouseout', () => {
-  console.log('mouseout', isFilled);
-  clearTimeout(timeout);
-  if (isFilled) { return; }
-  fillAnimation.gotoAndPlay(fillAnimation.duration - fillAnimation.position);
-  fillAnimation.reversed = true;
-});
+    circle.on('mouseout', () => {
+      console.log('mouseout', isFilled);
+      clearTimeout(timeout);
+      if (isFilled) { return; }
+      fillAnimation.gotoAndPlay(fillAnimation.duration - fillAnimation.position);
+      fillAnimation.reversed = true;
+    });
 
-shellContainer.addChild(shellFill);
-shellContainer.addChild(circle);
-shellContainer.addChild(shellCountour);
+    this.shellContainer.addChild(shellFill);
+    this.shellContainer.addChild(circle);
+    this.shellContainer.addChild(shellCountour);
+  }
+}
 
-export { shellContainer as default };
+export { Shell as default };

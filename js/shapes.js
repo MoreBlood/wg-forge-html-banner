@@ -8,6 +8,7 @@ const shapes = {
   shots: {
     first: {
       tank: './assets/1st_shot/tank.png',
+      tankLight: './assets/1st_shot/tank_light.png',
       backgroud: './assets/1st_shot/bg.jpg',
       hill: './assets/1st_shot/hill.png',
       smoke: './assets/1st_shot/smoke.png',
@@ -17,6 +18,13 @@ const shapes = {
       shellCountour: './assets/1st_shot/shell_countour.png',
       shellFill: './assets/1st_shot/shell_fill.png',
       enjoy: './assets/1st_shot/enjoy.png',
+      explosion: {
+        end: './assets/1st_shot/explosion/explosion_end.png',
+        middle: './assets/1st_shot/explosion/explosion_middle.png',
+        start: './assets/1st_shot/explosion/explosion_start.png',
+        hillLight: './assets/1st_shot/explosion/hill_light.png',
+        sparks: './assets/1st_shot/explosion/sparks.png',
+      },
     },
   },
 };

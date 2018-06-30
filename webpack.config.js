@@ -8,6 +8,9 @@ module.exports = {
     path: path.resolve(__dirname, 'build'),
     filename: 'js/app.bundle.js',
   },
+  externals: {
+    createjs: 'createjs',
+  },
   mode: 'development',
   module: {
     rules: [
