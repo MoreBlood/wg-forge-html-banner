@@ -1,12 +1,9 @@
 /* global createjs */
 import shapes from '../shapes';
 
-function getRandomArbitrary(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
-class Explosion {
+class Explosion extends createjs.Container {
   constructor(timeScale = 1) {
+    super();
     const start = new createjs.Bitmap(shapes.shots.first.explosion.start);
     const middle = new createjs.Bitmap(shapes.shots.first.explosion.middle);
     const end = new createjs.Bitmap(shapes.shots.first.explosion.end);
@@ -39,12 +36,10 @@ class Explosion {
     middle.alpha = 0;
 
 
-    this.container = new createjs.Container();
-
-    this.container.addChild(end);
-    this.container.addChild(middle);
-    this.container.addChild(start);
-    this.container.addChild(sparks);
+    this.addChild(end);
+    this.addChild(middle);
+    this.addChild(start);
+    this.addChild(sparks);
 
     this.timeLine = new createjs.Timeline({ paused: true, timeScale: 5 });
     this.timeLine.addTween(
@@ -70,25 +65,9 @@ class Explosion {
         .wait(250)
         .to({ scale: 0.8, alpha: 0 }, 500)
         .wait(1550));
-
-
-    // const smokeArray = Array.from(Array(10)).map(() => smoke.clone());
-
-    // for (let i = 0; i < smokeArray.length; i += 1) {
-    //   this.container.addChild(smokeArray[i]);
-    //   createjs.Tween.get(smokeArray[i], { loop: true, timeScale })
-    //     .wait(i * 400)
-    //     .to({ x: smoke.x - getRandomArbitrary(10, 100), y: smoke.y - getRandomArbitrary(10, 15), scale: getRandomArbitrary(1, 1.3) }, 3000);
-
-    //   createjs.Tween.get(smokeArray[i], { loop: true, timeScale })
-    //     .wait(i * 400)
-    //     .to({ alpha: 1 }, 500)
-    //     .to({ alpha: 0 }, 2500);
-    // }
   }
 
   shoot() {
-    console.log('shoot');
     this.timeLine.paused = false;
     this.timeLine.gotoAndPlay(0);
   }

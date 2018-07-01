@@ -1,15 +1,12 @@
+/* globals createjs */
 import shapes from '../shapes';
+import { random } from '../utils';
 
-function getRandomArbitrary(min, max) {
-  return Math.random() * (max - min) + min;
-}
 
-import createjs from 'createjs';
-
-class Smoke {
+class Smoke extends createjs.Container {
   constructor(timeScale = 1) {
+    super();
     const smoke = new createjs.Bitmap(shapes.shots.first.smoke);
-    this.container = new createjs.Container();
 
     smoke.regY = 75;
     smoke.regX = 228;
@@ -19,10 +16,10 @@ class Smoke {
     const smokeArray = Array.from(Array(10)).map(() => smoke.clone());
 
     for (let i = 0; i < smokeArray.length; i += 1) {
-      this.container.addChild(smokeArray[i]);
+      this.addChild(smokeArray[i]);
       createjs.Tween.get(smokeArray[i], { loop: true, timeScale })
         .wait(i * 400)
-        .to({ x: smoke.x - getRandomArbitrary(10, 100), y: smoke.y - getRandomArbitrary(10, 15), scale: getRandomArbitrary(1, 1.3) }, 3000);
+        .to({ x: smoke.x - random(10, 100), y: smoke.y - random(10, 15), scale: random(1, 1.3) }, 3000);
 
       createjs.Tween.get(smokeArray[i], { loop: true, timeScale })
         .wait(i * 400)

@@ -1,11 +1,11 @@
+/* globals createjs */
 import shapes from '../shapes';
 
-import createjs from 'createjs';
 createjs.MotionGuidePlugin.install();
 
-class Tracks {
+class Tracks extends createjs.Container {
   constructor() {
-    this.tracks = new createjs.Container();
+    super();
     this.tweens = [];
 
     setInterval(() => {
@@ -16,7 +16,7 @@ class Tracks {
       const trackPart = new createjs.Bitmap(shapes.tracks.trackPart);
       trackPart.scaleY = 0;
       trackPart.regX = 10;
-      this.tracks.addChild(trackPart);
+      this.addChild(trackPart);
 
       const tween = createjs.Tween.get(trackPart, { loop: true })
         .to({ guide: { path: [-15, -20, -30, -8, -21, 0] }, scaleY: 1 }, 2500)

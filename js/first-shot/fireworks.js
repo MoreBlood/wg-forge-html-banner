@@ -2,22 +2,11 @@
 // when animating on canvas, it is best to use requestAnimationFrame instead of setTimeout or setInterval
 // not supported in all browsers though and sometimes needs a prefix, so we need a shim
 import shapes from '../shapes';
+import { random, calculateDistance } from '../utils';
 
 // create particle group/explosion
 
 // now we are going to setup our function placeholders for the entire demo
-
-// get a random number within a range
-function random(min, max) {
-  return (Math.random() * (max - min)) + min;
-}
-
-// calculate the distance between two points
-function calculateDistance(p1x, p1y, p2x, p2y) {
-  const xDistance = p1x - p2x;
-  const yDistance = p1y - p2y;
-  return Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
-}
 
 class Particle {
   constructor(x, y, particles, hue) {
@@ -27,25 +16,26 @@ class Particle {
     this.particles = particles;
     // track the past coordinates of each particle to create a trail effect, increase the coordinate count to create more prominent trails
     this.coordinates = [];
-    this.coordinateCount = random(5, 10);
+    this.coordinateCount = random(3, 10);
     for (let i = 0; i < this.coordinateCount; i += 1) {
       this.coordinates.push([this.x, this.y]);
     }
-    this.blurRadius = random(7, 10);
-    this.lineWidth = random(1, 2);
+    this.blurRadius = random(3, 10);
+    this.lineWidth = random(0.4, 2);
     // set a random angle in all possible directions, in radians
     this.angle = random(0, Math.PI * 2);
     this.speed = random(1, 5);
     // friction will slow the particle down
-    this.friction = 0.96;
+    this.friction = random(0.9, 0.96);
     // gravity will be applied and pull the particle down
-    this.gravity = 0.5;
+    this.gravity = random(0.3, 0.6);
     // set the hue to a random number +-50 of the overall hue variable
     // this.hue = random( hue - 50, hue + 50 );
-    this.brightness = random(50, 80);
-    this.alpha = 1;
+    this.brightness = random(40, 70);
+    this.color = random(90, 100);
+    this.alpha = random(0.7, 1);
     // set how fast the particle fades out
-    this.decay = random(0.005, 0.05);
+    this.decay = random(0.003, 0.05);
   }
   update(index) {
     // remove last item in coordinates array
@@ -79,7 +69,7 @@ class Particle {
     // move to the last tracked coordinates in the set, then draw a line to the current x and y
     ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
     this.hue += 0.5;
-    ctx.strokeStyle = `hsl(${this.hue}, 100%, ${this.brightness}%)`;
+    ctx.strokeStyle = `hsl(${this.hue}, 100%, ${this.color}%)`;
     ctx.shadowBlur = this.blurRadius;
     ctx.shadowColor = `hsl(${this.hue}, 100%, ${this.brightness}%)`;
     ctx.lineWidth = this.lineWidth;
@@ -144,9 +134,9 @@ class Firework {
 
     // if the distance traveled, including velocities, is greater than the initial distance to the target, then the target has been reached
     if (this.distanceTraveled >= this.distanceToTarget) {
-      let particleCount = 100;
+      const particleCount = 100;
 
-      while (particleCount--) {
+      for (let i = 0; i < particleCount; i += 1) {
         this.particles.push(new Particle(this.tx, this.ty, this.particles, this.hue));
       }
       // remove the firework, use the index passed into the update function to determine which to remove

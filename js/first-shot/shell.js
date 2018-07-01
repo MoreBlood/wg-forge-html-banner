@@ -1,22 +1,18 @@
+/* global createjs */
 import shapes from '../shapes';
 
-import createjs from 'createjs';
-
-
-class Shell {
+class Shell extends createjs.Container {
   constructor() {
+    super();
     const shellCountour = new createjs.Bitmap(shapes.shots.first.shellCountour);
     const shellFill = new createjs.Bitmap(shapes.shots.first.shellFill);
 
-    this.shellContainer = new createjs.Container();
-    
-
     const mask = new createjs.Shape();
-    const circle = new createjs.Shape();
+    const trigger = new createjs.Shape();
 
     mask.graphics.beginFill('#000000').drawRect(0, 90, 100, 100);
-    circle.graphics.beginFill('#000000').drawRect(0, 0, 50, 100);
-    circle.alpha = 0.01;
+    trigger.graphics.beginFill('#000000').drawRect(0, 0, 50, 100);
+    trigger.alpha = 0.01;
 
     shellFill.mask = mask;
 
@@ -28,32 +24,30 @@ class Shell {
     let timeout;
 
     this.filled = new Promise((resolve) => {
-      circle.on('mouseover', () => {
-        console.log('mouseover', isFilled);
+      trigger.on('mouseover', () => {
         if (isFilled) { return; }
         fillAnimation.gotoAndPlay(fillAnimation.position);
         fillAnimation.reversed = false;
-  
+
         clearTimeout(timeout);
         timeout = setTimeout(() => {
-            resolve();
+          resolve();
           isFilled = true;
           fillAnimation.gotoAndPlay(fillAnimation.duration);
         }, 2000);
       });
     });
 
-    circle.on('mouseout', () => {
-      console.log('mouseout', isFilled);
+    trigger.on('mouseout', () => {
       clearTimeout(timeout);
       if (isFilled) { return; }
       fillAnimation.gotoAndPlay(fillAnimation.duration - fillAnimation.position);
       fillAnimation.reversed = true;
     });
 
-    this.shellContainer.addChild(shellFill);
-    this.shellContainer.addChild(circle);
-    this.shellContainer.addChild(shellCountour);
+    this.addChild(shellFill);
+    this.addChild(trigger);
+    this.addChild(shellCountour);
   }
 }
 
