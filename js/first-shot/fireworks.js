@@ -21,7 +21,7 @@ class Particle {
       this.coordinates.push([this.x, this.y]);
     }
     this.blurRadius = random(3, 10);
-    this.lineWidth = random(0.4, 2);
+    this.lineWidth = random(0.4, 3);
     // set a random angle in all possible directions, in radians
     this.angle = random(0, Math.PI * 2);
     this.speed = random(1, 5);
@@ -49,6 +49,7 @@ class Particle {
     this.y += (Math.sin(this.angle) * this.speed) + this.gravity;
     // fade out the particle
     this.alpha -= this.decay;
+    this.lineWidth -= 0.01;
 
     // remove the particle once the alpha is low enough, based on the passed in index
     if (this.alpha <= this.decay) {
@@ -57,14 +58,6 @@ class Particle {
   }
 
   draw(ctx) {
-    // const line = new createjs.Graphics();
-    // line.beginStroke('red');
-    // // move to the last tracked coordinate in the set, then draw a line to the current x and y
-    // line.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
-    // line.lineTo(this.x, this.y);
-    // // ctx.strokeStyle = `hsl(${hue}, 100%, ${this.brightness}%)`;
-    // line.endStroke();
-    // ctx.addChild(new createjs.Shape(line));
     ctx.beginPath();
     // move to the last tracked coordinates in the set, then draw a line to the current x and y
     ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
@@ -153,7 +146,7 @@ class Firework {
     // move to the last tracked coordinates in the set, then draw a line to the current x and y
     ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
     ctx.strokeStyle = `hsl(${this.hue}, 100%, ${this.brightness}%)`;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2;
     ctx.lineTo(this.x, this.y);
     ctx.stroke();
   }
@@ -170,29 +163,28 @@ class Scene extends createjs.Container {
     this.background.x = -120;
     this.background.y = -120;
     this.addChild(this.background);
-    this.isPaused = true;
+    this.isPaused = false;
     this.hue = 0;
   }
   shoot(fx, fy, tx, ty, hue) {
     this.hue = hue;
-    this.isPaused = false;
     this.fireworks.push(new Firework(fx, fy, tx, ty, this.fireworks, this.particles, this.hue));
+  }
+  pause() {
+    this.isPaused = true;
   }
   draw(ctx) {
     super.draw(ctx);
-    const bg = this.background.cache;
-    bg.x = -120;
-    bg.y = -120;
-    ctx.compositeOperation = 'destination-out';
-    bg.alpha = 0.05;
-    this.addChild(this.background);
-    ctx.compositeOperation = 'lighter';
+    
+
     this.fireworks.forEach((firework, i) => {
       firework.draw(ctx);
+      if (this.isPaused) return;
       firework.update(i);
     });
     this.particles.forEach((particle, i) => {
       particle.draw(ctx);
+      if (this.isPaused) return;
       particle.update(i);
     });
   }

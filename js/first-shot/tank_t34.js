@@ -3,7 +3,6 @@ import shapes from '../shapes';
 import Smoke from '../first-shot/smoke';
 import MovingParts from '../first-shot/moving_parts';
 
-
 class TankT34 extends createjs.Container {
   constructor() {
     super();
@@ -35,7 +34,17 @@ class TankT34 extends createjs.Container {
     this.movingTankParts.pause();
   }
 
+  startAnimation() {
+    this.timeline.paused = false;
+    this.timeline.gotoAndPlay(0);
+    this.movingTankParts.start();
+  }
+
   setupTank() {
+    this.gun = new createjs.Bitmap(shapes.shots.first.tankGun);
+    this.gun.x = 201;
+    this.gun.y = 8;
+    this.addChild(this.gun);
     this.tank = new createjs.Bitmap(shapes.shots.first.tank);
     this.addChild(this.tank);
   }
@@ -47,26 +56,37 @@ class TankT34 extends createjs.Container {
     this.addChild(this.tankLight);
   }
 
-  blink() {
+  blink(hue) {
+    const matrix = new createjs.ColorMatrix().adjustHue(hue);
+    this.tankLight.filters = [
+      new createjs.ColorMatrixFilter(matrix),
+    ];
+    this.tankLight.cache(0, 0, 262, 102);
+
     createjs.Tween.get(this.tankLight)
-      .to({ alpha: 1 }, 200)
-      .to({ alpha: 0 }, 200);
+      .to({ alpha: 0.5 }, 100)
+      .to({ alpha: 0 }, 300);
+  }
+
+  animateGun() {
+    createjs.Tween.get(this.gun, { loop: 1, bounce: true })
+      .to({ x: this.gun.x - 6, y: this.gun.y + 3 }, 100);
   }
 
   setupSmokesFromTurbines() {
-    this.smokeFromTurbineRight = new Smoke(2);
+    this.smokeFromTurbineRight = new Smoke(2, true);
     this.smokeFromTurbineRight.y = 35;
     this.smokeFromTurbineRight.x = 55;
     this.smokeFromTurbineRight.rotation = -55;
-    this.smokeFromTurbineRight.scale = 0.6;
+    this.smokeFromTurbineRight.scale = 0.8;
 
     this.addChild(this.smokeFromTurbineRight);
 
-    this.smokeFromTurbineLeft = new Smoke(3);
+    this.smokeFromTurbineLeft = new Smoke(3, true);
     this.smokeFromTurbineLeft.y = 35;
     this.smokeFromTurbineLeft.x = 37;
     this.smokeFromTurbineLeft.rotation = -55;
-    this.smokeFromTurbineLeft.scale = 0.4;
+    this.smokeFromTurbineLeft.scale = 0.6;
 
     this.addChild(this.smokeFromTurbineLeft);
   }

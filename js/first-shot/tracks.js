@@ -8,9 +8,7 @@ class Tracks extends createjs.Container {
     super();
     this.tweens = [];
 
-    setInterval(() => {
-      this.reverse();
-    }, 1000);
+    this.startReverse();
 
     for (let i = 0; i < 10; i += 1) {
       const trackPart = new createjs.Bitmap(shapes.tracks.trackPart);
@@ -33,14 +31,30 @@ class Tracks extends createjs.Container {
 
   reverse() {
     this.tweens.forEach((tween) => {
+      if (tween.paused) return;
       tween.gotoAndPlay(tween.duration - tween.position);
       tween.reversed = !tween.reversed;
     });
   }
 
+  startReverse() {
+    this.reverseFunc = setInterval(() => {
+      this.reverse();
+    }, 1000);
+  }
+
   stop() {
+    clearInterval(this.reverseFunc);
     this.tweens.forEach((tween) => {
       tween.paused = true;
+    });
+  }
+  start() {
+    this.startReverse();
+    this.tweens.forEach((tween, i) => {
+      tween.paused = false;
+      tween.gotoAndPlay(i * 500);
+      tween.reversed = true;
     });
   }
 }

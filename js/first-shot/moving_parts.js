@@ -25,10 +25,16 @@ class MovingParts extends createjs.Container {
     this.leftTracks.stop();
   }
 
+  start() {
+    this.tracksRotatingTimeline.paused = false;
+    this.tracksRotatingTimeline.gotoAndPlay(0);
+    this.rightTracks.start();
+    this.leftTracks.start();
+  }
+
   setupTracks() {
     this.rightTracks = new Track(15);
     this.leftTracks = new Track(15);
-
 
     this.leftTracks.x = -53;
     this.leftTracks.y = 6;

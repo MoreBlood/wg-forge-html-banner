@@ -4,16 +4,16 @@ import { random } from '../utils';
 
 
 class Smoke extends createjs.Container {
-  constructor(timeScale = 1) {
+  constructor(timeScale = 1, black = false) {
     super();
-    const smoke = new createjs.Bitmap(shapes.shots.first.smoke);
+    const smoke = new createjs.Bitmap(black ? shapes.shots.first.smokeBlack : shapes.shots.first.smoke);
 
     smoke.regY = 75;
     smoke.regX = 228;
     smoke.scale = 0.1;
     smoke.alpha = 0;
 
-    const smokeArray = Array.from(Array(10)).map(() => smoke.clone());
+    const smokeArray = Array.from(Array(random(7, 12))).map(() => smoke.clone());
 
     for (let i = 0; i < smokeArray.length; i += 1) {
       this.addChild(smokeArray[i]);

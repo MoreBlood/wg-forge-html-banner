@@ -26,9 +26,6 @@ module.exports = {
     ],
   },
   plugins: [
-    new HotModuleReplacementPlugin({
-      multiStep: true,
-    }),
     new CopyWebpackPlugin([
       {
         from: 'index.html',
@@ -36,7 +33,7 @@ module.exports = {
         toType: 'file',
       },
       {
-        from: 'assets',
+        from: 'assets/',
         to: 'assets',
         toType: 'dir',
       },
@@ -60,5 +57,4 @@ module.exports = {
   stats: {
     colors: true,
   },
-  devtool: 'source-map',
 };
