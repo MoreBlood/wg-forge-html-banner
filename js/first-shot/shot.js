@@ -1,4 +1,4 @@
-/* global createjs */
+/* global createjs, TimelineMax, TweenMax */
 
 import TankT34 from '../first-shot/tank_t34';
 import shapes from '../shapes';
@@ -11,7 +11,8 @@ import banner from '../index';
 class MainShot extends createjs.Container {
   constructor() {
     super();
-    this.timeline = new createjs.Timeline({ loop: true, bounce: true });
+    this.timeline = new TimelineMax({ loop: true, yoyo: true });
+
 
     this.blacked = new createjs.Shape();
     this.blacked.graphics.beginFill('black').drawRect(-300, -300, 1000, 1000);
@@ -26,20 +27,18 @@ class MainShot extends createjs.Container {
   }
 
   show() {
-    createjs.Tween.get(this.blacked)
-      .to({ alpha: 0 }, 1000, createjs.Ease.quadInOut);
+    TweenMax.to(this.blacked, 1, { alpha: 0 });
   }
 
   hide() {
-    return createjs.Tween.get(this.blacked)
-      .to({ alpha: 1 }, 1000, createjs.Ease.quadInOut);
+    return TweenMax.to(this.blacked, 1, { alpha: 1 });
   }
 
   setupScene() {
-    this.hill = new createjs.Bitmap(shapes.shots.first.hill);
-    this.hillLight = new createjs.Bitmap(shapes.shots.first.explosion.hillLight);
-    this.treeLeft = new createjs.Bitmap(shapes.shots.first.treeLeft);
-    this.treeRight = new createjs.Bitmap(shapes.shots.first.treeRight);
+    this.hill = new createjs.Bitmap(banner.images[shapes.shots.first.hill]);
+    this.hillLight = new createjs.Bitmap(banner.images[shapes.shots.first.explosion.hillLight]);
+    this.treeLeft = new createjs.Bitmap(banner.images[shapes.shots.first.treeLeft]);
+    this.treeRight = new createjs.Bitmap(banner.images[shapes.shots.first.treeRight]);
 
 
     this.firework = new Firework();
@@ -54,16 +53,23 @@ class MainShot extends createjs.Container {
     smoke0.alpha = 1;
     this.addChild(smoke0);
 
+    const smoke01 = new Smoke(0.2);
+    smoke01.y = 200;
+    smoke01.x = 450;
+    smoke01.scaleX = 2.5;
+    smoke01.scaleY = 2.5;
+    smoke01.alpha = 0.5;
+    this.addChild(smoke01);
+
     // setup tank
     this.tank = new TankT34();
     this.addChild(this.tank);
     this.tank.y = 100;
-    this.tank.rotation = -0.5;
+    this.tank.rotation = -0.1;
 
-    const tankTween = createjs.Tween.get(this.tank, { paused: true })
-      .to({ x: this.tank.x + 30, y: this.tank.y + 6, rotation: 0.5, scale: 0.96 }, 1000, createjs.Ease.quadInOut);
-      
-    this.tank.timeline.addTween(tankTween);
+    const tankTween = TweenMax.to(this.tank, 1, { x: this.tank.x + 30, y: this.tank.y + 6, rotation: 0.1, scale: 0.96, ease: Power1.easeInOut });
+
+    this.tank.timeline.add(tankTween);
 
     // smokes at foreground
     const smoke = new Smoke(0.5);
@@ -117,7 +123,7 @@ class MainShot extends createjs.Container {
         const hue = random(0, 360);
         this.firework.shoot(
           random(200, 250),
-          random(0, 40),
+          random(200, 300),
           random(250, 400),
           random(50, -20),
           hue);
@@ -128,11 +134,12 @@ class MainShot extends createjs.Container {
   }
 
   restart() {
+    console.log('restart');
     this.blacked.alpha = 1;
 
-    banner.packShot.hide()
-      .call(() => this.hide())
-      .call(() => {
+    banner.packShot.hide();
+    this.hide()
+      .eventCallback('onComplete', () => {
         this.x += 170;
         this.y -= 100;
         this.show();
@@ -148,30 +155,33 @@ class MainShot extends createjs.Container {
       this.explosion.shoot();
       this.tank.animateGun();
 
-      createjs.Tween.get(this.hillLight)
-        .to({ alpha: 1 }, 200)
-        .to({ alpha: 0 }, 200)
-        .call(() => this.expodeFireworks(10));
+      const hillLightTimeline = new TimelineMax();
+
+      hillLightTimeline
+        .to(this.hillLight, 0.2, { alpha: 1 })
+        .to(this.hillLight, 0.2, { alpha: 0 })
+        .call(() => this.expodeFireworks(9));
 
       this.tank.blink(0);
 
-      createjs.Tween.get(this.tank)
-        .to({ x: this.tank.x -= 1, y: this.tank.y += 1 }, 100)
-        .to({ x: this.tank.x += 1, y: this.tank.y -= 1 }, 100);
+      const tankShakeTimeline = new TimelineMax();
+
+      tankShakeTimeline
+        .to(this.tank, 0.1, { x: this.tank.x -= 1, y: this.tank.y += 1 })
+        .to(this.tank, 0.1, { x: this.tank.x += 1, y: this.tank.y -= 1 });
     };
 
-    createjs.Tween.get(this)
-      .to({ x: this.x - 34, y: this.y + 20 }, 500)
-      .call(() => play())
-      .to({ y: this.y + 30 }, 100, createjs.Ease.quadInOut)
-      .to({ y: this.y + 20 }, 100, createjs.Ease.quadInOut)
-      .to({ x: this.x - 170, y: this.y + 100 }, 2000, createjs.Ease.quadInOut)
-      .wait(1500)
-      .call(() => this.expodeFireworks(7))
-      .wait(3500)
-      .call(() => banner.toPackShot())
-      .wait(12000)
-      .call(() => this.restart());
+    const sceneTimeline = new TimelineMax();
+
+    sceneTimeline
+      .to(this, 0.5, { x: this.x - 34, y: this.y + 20 })
+      .call(() => play(), null, this, 0.5)
+      .to(this, 0.1, { y: this.y + 30, ease: Power1.easeInOut })
+      .to(this, 0.1, { y: this.y + 20, ease: Power2.easeInOut })
+      .to(this, 2, { x: this.x - 170, y: this.y + 100, ease: Power2.easeInOut })
+      .addPause('+=4', () => banner.toPackShot());
+
+    TweenMax.delayedCall(18, () => this.restart());
   }
 }
 

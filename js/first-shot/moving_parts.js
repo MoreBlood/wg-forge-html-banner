@@ -1,8 +1,7 @@
-/* globals createjs */
+/* globals createjs, TimelineMax, TweenMax */
 import shapes from '../shapes';
 import Track from '../first-shot/tracks';
-
-createjs.MotionGuidePlugin.install();
+import banner from '../index';
 
 class MovingParts extends createjs.Container {
   constructor() {
@@ -12,22 +11,22 @@ class MovingParts extends createjs.Container {
     this.setupLastWheel();
     this.setupTracks();
 
-    this.tracksRotatingTimeline = new createjs.Timeline();
+    this.tracksRotatingTimeline = new TimelineMax({ repeat: -1, yoyo: true });
+
+    this.tweens = [this.lastWheel, this.firstTrack].concat(this.middleWheels);
     // add rotation
-    this.tracksRotatingTimeline.addTween(
-      ...[this.lastWheel, this.firstTrack].concat(this.middleWheels).map(child => createjs.Tween.get(child).to({ rotation: 35 + child.rotation }, 1000, createjs.Ease.quadInOut)))
+    this.tracksRotatingTimeline.add(this.tweens.map(child => TweenMax.to(child, 1, { rotation: 35 + child.rotation, ease: Power1.easeInOut })), 0)
     ;
   }
 
   pause() {
-    this.tracksRotatingTimeline.paused = true;
+    this.tracksRotatingTimeline.paused(true);
     this.rightTracks.stop();
     this.leftTracks.stop();
   }
 
   start() {
-    this.tracksRotatingTimeline.paused = false;
-    this.tracksRotatingTimeline.gotoAndPlay(0);
+    this.tracksRotatingTimeline.play(0);
     this.rightTracks.start();
     this.leftTracks.start();
   }
@@ -46,7 +45,7 @@ class MovingParts extends createjs.Container {
   }
 
   setupFirstWheel() {
-    this.firstTrack = new createjs.Bitmap(shapes.tracks.first);
+    this.firstTrack = new createjs.Bitmap(banner.images[shapes.tracks.first]);
     this.firstTrack.x = 197;
     this.firstTrack.y = -1.5;
 
@@ -57,7 +56,7 @@ class MovingParts extends createjs.Container {
   }
 
   setupLastWheel() {
-    this.lastWheel = new createjs.Bitmap(shapes.tracks.last);
+    this.lastWheel = new createjs.Bitmap(banner.images[shapes.tracks.last]);
     this.lastWheel.regX = 19;
     this.lastWheel.regY = 19;
 
@@ -67,7 +66,7 @@ class MovingParts extends createjs.Container {
   setupMiddleWheels() {
     this.middleWheels = [];
 
-    Array.from(Array(5)).forEach(() => this.middleWheels.push(new createjs.Bitmap(shapes.tracks.middle)));
+    Array.from(Array(5)).forEach(() => this.middleWheels.push(new createjs.Bitmap(banner.images[shapes.tracks.middle])));
 
     for (let i = 0; i < this.middleWheels.length; i += 1) {
       this.middleWheels[i].y = 5;

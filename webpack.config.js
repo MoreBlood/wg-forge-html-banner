@@ -1,6 +1,6 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { HotModuleReplacementPlugin } = require('webpack');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
   entry: './js/index.js',
@@ -8,10 +8,12 @@ module.exports = {
     path: path.resolve(__dirname, 'build'),
     filename: 'js/app.bundle.js',
   },
-  externals: {
-    createjs: 'createjs',
+  optimization: {
+    minimizer: [
+      new UglifyJsPlugin(),
+    ],
   },
-  mode: 'development',
+  mode: 'production',
   module: {
     rules: [
       {
@@ -35,16 +37,6 @@ module.exports = {
       {
         from: 'assets/',
         to: 'assets',
-        toType: 'dir',
-      },
-      {
-        from: 'node_modules/tweenjs/lib/tweenjs.min.js',
-        to: 'lib',
-        toType: 'dir',
-      },
-      {
-        from: 'node_modules/easeljs/lib/easeljs.min.js',
-        to: 'lib',
         toType: 'dir',
       },
     ]),

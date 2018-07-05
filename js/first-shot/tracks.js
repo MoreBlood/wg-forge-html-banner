@@ -1,7 +1,6 @@
-/* globals createjs */
+/* globals createjs, TweenMax, TimelineMax */
 import shapes from '../shapes';
-
-createjs.MotionGuidePlugin.install();
+import banner from '../index';
 
 class Tracks extends createjs.Container {
   constructor() {
@@ -11,19 +10,22 @@ class Tracks extends createjs.Container {
     this.startReverse();
 
     for (let i = 0; i < 10; i += 1) {
-      const trackPart = new createjs.Bitmap(shapes.tracks.trackPart);
+      const trackPart = new createjs.Bitmap(banner.images[shapes.tracks.trackPart]);
       trackPart.scaleY = 0;
-      trackPart.regX = 10;
+      trackPart.regX = 14;
+      trackPart.regY = 7;
       this.addChild(trackPart);
 
-      const tween = createjs.Tween.get(trackPart, { loop: true })
-        .to({ guide: { path: [-15, -20, -30, -8, -21, 0] }, scaleY: 1 }, 2500)
-        .to({ guide: { path: [-21, 0, -16, 15, 10, 25] }, scaleY: 0 }, 2500);
+
+      const tween = new TimelineMax({ repeat: -1 });
+
+      tween
+        .to(trackPart, 2.5, { ease: Linear.easeNone, reversed: true, bezier: { type: 'quadratic', timeResolution: 100, values: [{ x: -10, y: -20 }, { x: -20, y: -8 }, { x: -21, y: 0 }, { x: -16, y: 15 }, { x: 10, y: 25 }] } })
+        .to(trackPart, 1, { ease: Linear.easeNone, scaleY: 1 }, 0)
+        .to(trackPart, 1.5, { ease: Linear.easeNone, scaleY: 0, delay: 1 }, 0);
       // tween.paused = true;
 
-      tween.gotoAndPlay(i * 500);
-      tween.reversed = true;
-
+      tween.time(i * 0.3);
 
       this.tweens.push(tween);
     }
@@ -31,9 +33,8 @@ class Tracks extends createjs.Container {
 
   reverse() {
     this.tweens.forEach((tween) => {
-      if (tween.paused) return;
-      tween.gotoAndPlay(tween.duration - tween.position);
-      tween.reversed = !tween.reversed;
+      if (tween.paused()) return;
+      tween.reversed(!tween.reversed());
     });
   }
 
@@ -46,15 +47,14 @@ class Tracks extends createjs.Container {
   stop() {
     clearInterval(this.reverseFunc);
     this.tweens.forEach((tween) => {
-      tween.paused = true;
+      tween.paused(true);
     });
   }
   start() {
     this.startReverse();
     this.tweens.forEach((tween, i) => {
-      tween.paused = false;
-      tween.gotoAndPlay(i * 500);
-      tween.reversed = true;
+      tween.reversed(true);
+      tween.play(i * 0.3);
     });
   }
 }

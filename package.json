@@ -11,9 +11,6 @@
   "author": "MoreBlood",
   "license": "ISC",
   "dependencies": {
-    "createjs": "^1.0.1",
-    "easeljs": "^1.0.2",
-    "tweenjs": "^1.0.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
@@ -27,6 +24,7 @@
     "eslint-plugin-es6-recommended": "^0.1.2",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-node": "^5.1.1",
+    "uglifyjs-webpack-plugin": "^1.2.7",
     "webpack": "^4.12.1",
     "webpack-clean": "^1.2.1",
     "webpack-cli": "^3.0.8",

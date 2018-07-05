@@ -1,11 +1,13 @@
-/* global createjs */
+/* global createjs, TweenMax */
 import shapes from '../shapes';
+import banner from '../index';
 
 class Button extends createjs.Container {
   constructor() {
     super();
-    this.button = new createjs.Bitmap(shapes.shots.pack.button);
+    this.button = new createjs.Bitmap(banner.images[shapes.shots.pack.button]);
     const trigger = new createjs.Shape();
+    trigger.cursor = 'pointer';
 
     trigger.graphics.beginFill('#000000').drawRect(0, 0, 146, 40);
     trigger.alpha = 0.01;
@@ -16,13 +18,13 @@ class Button extends createjs.Container {
     this.button.regY = 20;
 
     this.button.alpha = 0;
-    this.button.scale = 1.5;
+    this.button.scaleX = 1.5;
+    this.button.scaleY = 1.5;
 
     this.addChild(this.button);
     this.addChild(trigger);
 
-    this.showButton = createjs.Tween.get(this.button, { paused: true })
-      .to({ alpha: 1, scale: 1 }, 1000, createjs.Ease.bounceOut);
+    this.showButton = TweenMax.to(this.button, 1, { paused: false, alpha: 1, scaleX: 1, scaleY: 1, delay: 0.5, ease: Bounce.easeOut, });
 
     trigger.on('mouseover', () => {
       this.onMouseOver();
@@ -34,12 +36,10 @@ class Button extends createjs.Container {
   }
 
   onMouseOver() {
-    createjs.Tween.get(this.button)
-      .to({ alpha: 1, scale: 1.2 }, 1000, createjs.Ease.elasticOut);
+    TweenMax.to(this.button, 1, { alpha: 1, scaleX: 1.2, scaleY: 1.2, ease: Elastic.easeOut });
   }
   onMouseOut() {
-    createjs.Tween.get(this.button)
-      .to({ alpha: 1, scale: 1 }, 1000, createjs.Ease.elasticOut);
+    TweenMax.to(this.button, 1, { alpha: 1, scaleX: 1, scaleY: 1, ease: Elastic.easeOut });
   }
 }
 

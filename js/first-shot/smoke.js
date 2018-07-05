@@ -1,30 +1,38 @@
-/* globals createjs */
+/* globals createjs, TweenMax, TimelineMax */
+
 import shapes from '../shapes';
 import { random } from '../utils';
+import banner from '../index';
 
 
 class Smoke extends createjs.Container {
   constructor(timeScale = 1, black = false) {
     super();
-    const smoke = new createjs.Bitmap(black ? shapes.shots.first.smokeBlack : shapes.shots.first.smoke);
+    const smoke = new createjs.Bitmap(banner.images[black ? shapes.shots.first.smokeBlack : shapes.shots.first.smoke]);
 
     smoke.regY = 75;
     smoke.regX = 228;
-    smoke.scale = 0.1;
+    smoke.scaleX = 0.1;
+    smoke.scaleY = 0.1;
     smoke.alpha = 0;
 
-    const smokeArray = Array.from(Array(random(7, 12))).map(() => smoke.clone());
+    const smokeArray = Array.from(Array(10)).map(() => smoke.clone());
+
+    this.timeline = new TimelineMax({ repeat: -1 })
+      .timeScale(timeScale);
 
     for (let i = 0; i < smokeArray.length; i += 1) {
       this.addChild(smokeArray[i]);
-      createjs.Tween.get(smokeArray[i], { loop: true, timeScale })
-        .wait(i * 400)
-        .to({ x: smoke.x - random(10, 100), y: smoke.y - random(10, 15), scale: random(1, 1.3) }, 3000);
 
-      createjs.Tween.get(smokeArray[i], { loop: true, timeScale })
-        .wait(i * 400)
-        .to({ alpha: 1 }, 500)
-        .to({ alpha: 0 }, 2500);
+      const scale = random(1, 1.3);
+      
+      this.timeline.add(TweenMax.to(smokeArray[i], 3, { x: smoke.x - random(10, 100), y: smoke.y - random(10, 15), scaleX: scale, scaleY: scale }), i * 0.4);
+    
+      const show = TweenMax.to(smokeArray[i], 0.5, { alpha: 1 });
+
+      const hide = TweenMax.to(smokeArray[i], 2.5, { alpha: 0 });
+
+      this.timeline.add([show, hide], i * 0.4, 'sequence');
     }
   }
 }

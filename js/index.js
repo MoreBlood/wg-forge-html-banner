@@ -1,22 +1,14 @@
-/* global createjs */
-
+/* global createjs, TweenMax, TimelineMax */
 import MainShot from './first-shot/shot';
 import PackShot from './pack-shot/shot';
 import shapes from './shapes';
 import Shell from './first-shot/shell';
-
+import { preload } from './utils';
 
 class Banner extends createjs.Stage {
   constructor(canvas) {
     super(canvas);
     this.enableMouseOver(20);
-
-    this.mainShot = new MainShot();
-    this.addChild(this.mainShot);
-
-    //this.toPackShot();
-
-    this.restart();
 
     createjs.Ticker.framerate = 60;
     createjs.Ticker.addEventListener('tick', this);
@@ -24,6 +16,12 @@ class Banner extends createjs.Stage {
     setInterval(() => {
       console.log(createjs.Ticker.getMeasuredFPS(1));
     }, 1000);
+  }
+
+  load() {
+    this.mainShot = new MainShot();
+    this.addChild(this.mainShot);
+    this.restart();
   }
 
   restart() {
@@ -34,7 +32,7 @@ class Banner extends createjs.Stage {
   }
 
   addLogo() {
-    this.wotLogo = this.wotLogo || new createjs.Bitmap(shapes.shots.first.wotLogo);
+    this.wotLogo = this.wotLogo || new createjs.Bitmap(this.images[shapes.shots.first.wotLogo]);
     this.wotLogo.y = 0;
     this.wotLogo.x = 60;
 
@@ -43,7 +41,7 @@ class Banner extends createjs.Stage {
 
   addShellAndText() {
     // text
-    this.enjoy = this.enjoy || new createjs.Bitmap(shapes.shots.first.enjoy);
+    this.enjoy = this.enjoy || new createjs.Bitmap(this.images[shapes.shots.first.enjoy]);
     this.addChild(this.enjoy);
 
     // shell
@@ -62,19 +60,13 @@ class Banner extends createjs.Stage {
     this.shell.x = 290;
     this.shell.y = 179;
 
-
     this.enjoy.y = 210;
     this.enjoy.x = 92;
   }
 
   hideShellAndText() {
-    createjs.Tween.get(this.shell)
-      .wait(500)
-      .to({ y: this.shell.y + 200 }, 1000);
-
-    createjs.Tween.get(this.enjoy)
-      .wait(500)
-      .to({ y: this.enjoy.y + 200 }, 1000);
+    TweenMax.to(this.shell, 1, { delay: 0.5, y: this.shell.y + 200 });
+    TweenMax.to(this.enjoy, 1, { delay: 0.5, y: this.enjoy.y + 200 });
   }
 
   toPackShot() {
@@ -82,16 +74,16 @@ class Banner extends createjs.Stage {
     this.packShot.blacked.alpha = 0;
     this.addChild(this.packShot);
     this.setChildIndex(this.packShot, this.numChildren - 2);
-    this.packShot.scale = 3;
+    this.packShot.scaleX = 3;
+    this.packShot.scaleY = 3;
     this.packShot.alpha = 0;
     this.packShot.regX = 168;
     this.packShot.regY = 140;
     this.packShot.x = 168;
     this.packShot.y = 140;
 
-    createjs.Tween.get(this.packShot)
-      .to({ scale: 1, alpha: 1 }, 1500, createjs.Ease.quadInOut)
-      .call(() => this.putInPlaceShellAndText());
+    TweenMax.to(this.packShot, 1.5, { scaleX: 1, scaleY: 1, alpha: 1, ease: Power3.easeInOut });
+    TweenMax.delayedCall(1.5, () => this.putInPlaceShellAndText());
   }
 
   bindPromise() {
@@ -102,7 +94,15 @@ class Banner extends createjs.Stage {
       });
   }
 }
-
 const banner = new Banner('ad');
+
+preload()
+  .then((images) => {
+    banner.images = {};
+    for (let i = 0; i < images.length; i += 1) {
+      banner.images[images[i].url] = images[i].image;
+    }
+    banner.load();
+  });
 
 export { banner as default };

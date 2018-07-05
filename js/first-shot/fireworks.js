@@ -21,9 +21,9 @@ class Particle {
       this.coordinates.push([this.x, this.y]);
     }
     this.blurRadius = random(3, 10);
-    this.lineWidth = random(0.4, 3);
+    this.lineWidth = random(0.4, 1.2);
     // set a random angle in all possible directions, in radians
-    this.angle = random(0, Math.PI * 2);
+    this.angle = random(0, Math.PI * random(-2, -1));
     this.speed = random(1, 5);
     // friction will slow the particle down
     this.friction = random(0.9, 0.96);
@@ -33,7 +33,7 @@ class Particle {
     // this.hue = random( hue - 50, hue + 50 );
     this.brightness = random(40, 70);
     this.color = random(90, 100);
-    this.alpha = random(0.7, 1);
+    this.alpha = 1;
     // set how fast the particle fades out
     this.decay = random(0.003, 0.05);
   }
@@ -98,7 +98,7 @@ class Firework {
     this.angle = Math.atan2(ty - sy, tx - sx);
     this.speed = 2;
     this.acceleration = 1.05;
-    this.brightness = random(50, 70);
+    this.brightness = random(90, 100);
     // circle target indicator radius
     this.targetRadius = 2;
   }
@@ -175,7 +175,6 @@ class Scene extends createjs.Container {
   }
   draw(ctx) {
     super.draw(ctx);
-    
 
     this.fireworks.forEach((firework, i) => {
       firework.draw(ctx);

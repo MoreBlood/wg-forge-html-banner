@@ -1,12 +1,13 @@
-/* global createjs */
+/* global createjs, TweenMax */
 import shapes from '../shapes';
+import banner from '../index';
 
 class Shell extends createjs.Container {
   constructor() {
     super();
-    const shellCountour = new createjs.Bitmap(shapes.shots.first.shellCountour);
-    const shellFill = new createjs.Bitmap(shapes.shots.first.shellFill);
-    this.pointer = new createjs.Bitmap(shapes.shots.first.pointer);
+    const shellCountour = new createjs.Bitmap(banner.images[shapes.shots.first.shellCountour]);
+    const shellFill = new createjs.Bitmap(banner.images[shapes.shots.first.shellFill]);
+    this.pointer = new createjs.Bitmap(banner.images[shapes.shots.first.pointer]);
 
     this.pointer.x = -25;
     this.pointer.y = -10;
@@ -14,8 +15,7 @@ class Shell extends createjs.Container {
 
     this.showCursor();
 
-    createjs.Tween.get(this.pointer, { loop: true, bounce: true })
-      .to({ x: -90 }, 1500, createjs.Ease.quadInOut);
+    TweenMax.to(this.pointer, 1.5, { x: -90, repeat: -1, yoyo: true, ease: Power3.easeInOut });
 
     const mask = new createjs.Shape();
     this.trigger = new createjs.Shape();
@@ -29,28 +29,26 @@ class Shell extends createjs.Container {
 
     this.isFilled = false;
 
-    this.fillAnimation = createjs.Tween.get(mask, { paused: true })
-      .to({ y: -90 }, 2000);
+    this.fillAnimation = TweenMax.to(mask, 2, { y: -90, paused: true });
 
     this.filled = () => new Promise((resolve) => {
       this.trigger.removeAllEventListeners();
       this.trigger.on('mouseover', () => {
         if (this.isFilled) { return; }
-        this.fillAnimation.gotoAndPlay(this.fillAnimation.position);
-        this.fillAnimation.reversed = false;
+        this.fillAnimation.play(this.fillAnimation.time());
+        this.fillAnimation.reversed(false);
 
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => {
           resolve();
           this.isFilled = true;
-          this.fillAnimation.gotoAndPlay(this.fillAnimation.duration);
+          this.fillAnimation.play(this.fillAnimation.duration());
         }, 2000);
       });
       this.trigger.on('mouseout', () => {
         clearTimeout(this.timeout);
-        if (this.isFilled || this.fillAnimation.position === 0) { return; }
-        this.fillAnimation.gotoAndPlay(this.fillAnimation.duration - this.fillAnimation.position);
-        this.fillAnimation.reversed = true;
+        if (this.isFilled || this.fillAnimation.time() === 0) { return; }
+        this.fillAnimation.reversed(true);
       });
     });
 
@@ -62,21 +60,19 @@ class Shell extends createjs.Container {
 
   hideCursor(x, y) {
     // const local = this.globalToLocal(x, y);
-    createjs.Tween.get(this.pointer)
-      // .to({ x: local.x, y: local.y }, 500, createjs.Ease.quadInOut)
-      .to({ alpha: 0 }, 200, createjs.Ease.quadInOut);
+    TweenMax.to(this.pointer, 0.2, { alpha: 0, ease: Power1.easeInOut });
   }
 
   showCursor() {
-    createjs.Tween.get(this.pointer)
-      .to({ alpha: 1 }, 500, createjs.Ease.quadInOut);
+    TweenMax.to(this.pointer, 0.5, { alpha: 1, ease: Power1.easeInOut });
   }
 
   restart() {
     this.pointer.alpha = 1;
     this.isFilled = false;
-    this.fillAnimation.reversed = false;
-    this.fillAnimation.gotoAndStop(0);
+    this.fillAnimation.reversed(false);
+    this.fillAnimation.time(0);
+    this.fillAnimation.paused(true);
   }
 }
 

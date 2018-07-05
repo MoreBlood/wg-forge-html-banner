@@ -1,4 +1,4 @@
-/* global createjs */
+/* global createjs, TimelineMax, TweenMax */
 
 import TankT3485 from '../pack-shot/tank_t34-85';
 import shapes from '../shapes';
@@ -6,17 +6,18 @@ import Smoke from '../first-shot/smoke';
 import Firework from '../first-shot/fireworks';
 import { random } from '../utils';
 import Button from '../pack-shot/button';
+import banner from '../index';
 
 class PackShot extends createjs.Container {
   constructor() {
     super();
-    this.timeline = new createjs.Timeline({ loop: true, bounce: true });
+    this.timeline = new TimelineMax({ loop: true, bounce: true });
 
     this.setupScene();
     this.setupButton();
     this.setupText();
     this.addBlacked();
-    this.expodeFireworks(30);
+    this.expodeFireworks(15);
     // setInterval(() => this.shoot(), 2000);
   }
 
@@ -28,17 +29,16 @@ class PackShot extends createjs.Container {
   }
 
   hide() {
-    return createjs.Tween.get(this.blacked)
-      .to({ alpha: 1 }, 1000, createjs.Ease.quadInOut)
-      .call(() => {
+    return TweenMax.to(this.blacked, 1, { alpha: 1,
+      onComplete: () => {
         this.alpha = 0;
-      });
+      } });
   }
 
   setupScene() {
-    this.hill = new createjs.Bitmap(shapes.shots.first.hill);
-    this.treeLeft = new createjs.Bitmap(shapes.shots.first.treeLeft);
-    this.treeRight = new createjs.Bitmap(shapes.shots.first.treeRight);
+    this.hill = new createjs.Bitmap(banner.images[shapes.shots.first.hill]);
+    this.treeLeft = new createjs.Bitmap(banner.images[shapes.shots.first.treeLeft]);
+    this.treeRight = new createjs.Bitmap(banner.images[shapes.shots.first.treeRight]);
 
 
     this.firework = new Firework();
@@ -60,13 +60,9 @@ class PackShot extends createjs.Container {
     this.tank.x = 90;
     this.tank.scale = 0.9;
     this.tank.rotation = -0.5;
-    const tankTween = createjs.Tween
-      .get(this.tank, { paused: true })
-      .wait(1000)
-      .to({ y: this.tank.y - 25, x: this.tank.x - 55, scale: 1 }, 2000, createjs.Ease.quadInOut)
-      .call(() => this.tank.stopAnimation());
 
-    this.tank.timeline.addTween(tankTween);
+    const tankTween = TweenMax.to(this.tank, 2, { y: this.tank.y - 25, x: this.tank.x - 55, scale: 1, delay: 1, onComplete: () => this.tank.stopAnimation(), ease: Power1.easeInOut });
+    this.tank.timeline.add(tankTween, 0);
 
     // smokes at foreground
     const smoke = new Smoke(0.5);
@@ -124,8 +120,8 @@ class PackShot extends createjs.Container {
   }
 
   setupText() {
-    this.greeting = new createjs.Bitmap(shapes.shots.pack.greeting);
-    this.enjoy = new createjs.Bitmap(shapes.shots.pack.enjoy);
+    this.greeting = new createjs.Bitmap(banner.images[shapes.shots.pack.greeting]);
+    this.enjoy = new createjs.Bitmap(banner.images[shapes.shots.pack.enjoy]);
 
     this.greeting.x = 168;
     this.greeting.regX = 126.5;
@@ -133,7 +129,8 @@ class PackShot extends createjs.Container {
     this.greeting.y = 181;
 
     this.greeting.alpha = 0;
-    this.greeting.scale = 2;
+    this.greeting.scaleX = 2;
+    this.greeting.scaleY = 2;
     this.greeting.shadow = new createjs.Shadow('black', 0, 0, 10);
 
     this.enjoy.x = 168;
@@ -141,28 +138,25 @@ class PackShot extends createjs.Container {
     this.enjoy.y = 207;
     this.enjoy.regY = 12.5;
     this.enjoy.alpha = 0;
-    this.enjoy.scale = 2;
+    this.enjoy.scaleX = 2;
+    this.enjoy.scaleY = 2;
 
     this.addChild(this.greeting);
     this.addChild(this.enjoy);
 
-    const showGreeting = createjs.Tween.get(this.greeting, { paused: true })
-      .to({ alpha: 1, scale: 1 }, 500, createjs.Ease.quadInOut);
+    const showGreeting = TweenMax.to(this.greeting, 0.5, { paused: false, alpha: 1, scaleX: 1, scaleY: 1, delay: 2, ease: Power3.easeOut });
 
-    createjs.Tween.get(this.enjoy)
-      .wait(1500)
-      .to({ alpha: 1, scale: 1 }, 500, createjs.Ease.quadInOut)
-      .wait(500)
-      .play(this.showButton)
-      .wait(2000)
-      .play(showGreeting)
-      .to({ alpha: 0, scale: 0 }, 500, createjs.Ease.quadInOut)
-      .wait(5000);
+    const timeline = new TimelineMax();
+
+    timeline
+      .to(this.enjoy, 0.5, { alpha: 1, scaleX: 1, scaleY: 1, delay: 1.5, ease: Power3.easeOut })
+      .add(this.showButton)
+      .add(showGreeting)
+      .to(this.enjoy, 0.5, { alpha: 0, scaleX: 0, scaleY: 0, ease: Power3.easeOut }, '-=0.5');
   }
 
   shoot() {
     this.tank.stopAnimation();
-    this.expodeFireworks(10);
   }
 }
 

@@ -1,13 +1,14 @@
-/* globals createjs */
+/* globals createjs, TimelineMax */
 import shapes from '../shapes';
 import TracksPackShot from './tracks';
+import banner from '../index';
 
 
 class TankT3485 extends createjs.Container {
   constructor() {
     super();
 
-    this.timeline = new createjs.Timeline();
+    this.timeline = new TimelineMax();
 
     this.setupTank();
     this.setupTankLight();
@@ -49,14 +50,14 @@ class TankT3485 extends createjs.Container {
   }
 
   setupTank() {
-    this.tank = new createjs.Bitmap(shapes.shots.pack.tank);
+    this.tank = new createjs.Bitmap(banner.images[shapes.shots.pack.tank]);
     this.addChild(this.tank);
   }
 
   setupTankLight() {
-    this.tankLight = new createjs.Bitmap(shapes.shots.pack.tankLight);
+    this.tankLight = new createjs.Bitmap(banner.images[shapes.shots.pack.tankLight]);
     this.tankLight.x = 90;
-    this.tankLight.alpha = 0.5;
+    this.tankLight.alpha = 0.75;
     this.tankLight.compositeOperation = 'lighten';
     this.addChild(this.tankLight);
   }
@@ -68,9 +69,11 @@ class TankT3485 extends createjs.Container {
     ];
     this.tankLight.cache(0, 0, 262, 202);
 
-    createjs.Tween.get(this.tankLight)
-      .to({ alpha: 0.5 }, 100)
-      .to({ alpha: 0 }, 300);
+    const blinkTimeline = new TimelineMax();
+
+    blinkTimeline
+      .to(this.tankLight, 0.1, { alpha: 0.5 })
+      .to(this.tankLight, 0.3, { alpha: 0 });
   }
 }
 

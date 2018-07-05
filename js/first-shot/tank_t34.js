@@ -1,13 +1,16 @@
-/* globals createjs */
+/* globals createjs, TimelineMax, TweenMax */
+
 import shapes from '../shapes';
 import Smoke from '../first-shot/smoke';
 import MovingParts from '../first-shot/moving_parts';
+import banner from '../index';
 
 class TankT34 extends createjs.Container {
   constructor() {
     super();
 
-    this.timeline = new createjs.Timeline({ loop: true, bounce: true });
+
+    this.timeline = new TimelineMax({ repeat: -1, yoyo: true });
 
     this.setupTank();
     this.setupTankLight();
@@ -26,31 +29,30 @@ class TankT34 extends createjs.Container {
     this.movingTankParts.y = 66;
 
     this.addChild(this.movingTankParts);
-    this.timeline.addTween(...this.movingTankParts.tracksRotatingTimeline.tweens);
+    this.timeline.add(...TweenMax.getAllTweens(this.movingTankParts.tracksRotatingTimeline));
   }
 
   stopAnimation() {
-    this.timeline.paused = true;
+    this.timeline.paused(true);
     this.movingTankParts.pause();
   }
 
   startAnimation() {
-    this.timeline.paused = false;
-    this.timeline.gotoAndPlay(0);
+    this.timeline.play(0);
     this.movingTankParts.start();
   }
 
   setupTank() {
-    this.gun = new createjs.Bitmap(shapes.shots.first.tankGun);
+    this.gun = new createjs.Bitmap(banner.images[shapes.shots.first.tankGun]);
     this.gun.x = 201;
     this.gun.y = 8;
     this.addChild(this.gun);
-    this.tank = new createjs.Bitmap(shapes.shots.first.tank);
+    this.tank = new createjs.Bitmap(banner.images[shapes.shots.first.tank]);
     this.addChild(this.tank);
   }
 
   setupTankLight() {
-    this.tankLight = new createjs.Bitmap(shapes.shots.first.tankLight);
+    this.tankLight = new createjs.Bitmap(banner.images[shapes.shots.first.tankLight]);
     this.tankLight.x = 10;
     this.tankLight.alpha = 0;
     this.addChild(this.tankLight);
@@ -63,14 +65,15 @@ class TankT34 extends createjs.Container {
     ];
     this.tankLight.cache(0, 0, 262, 102);
 
-    createjs.Tween.get(this.tankLight)
-      .to({ alpha: 0.5 }, 100)
-      .to({ alpha: 0 }, 300);
+    const blinkTimeline = new TimelineMax();
+
+    blinkTimeline
+      .to(this.tankLight, 0.1, { alpha: 0.75 })
+      .to(this.tankLight, 0.3, { alpha: 0 });
   }
 
   animateGun() {
-    createjs.Tween.get(this.gun, { loop: 1, bounce: true })
-      .to({ x: this.gun.x - 6, y: this.gun.y + 3 }, 100);
+    TweenMax.to(this.gun, 0.1, { x: this.gun.x - 6, y: this.gun.y + 3, repeat: 1, yoyo: true });
   }
 
   setupSmokesFromTurbines() {
