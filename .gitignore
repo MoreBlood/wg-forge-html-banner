@@ -223,4 +223,3 @@ public/javascripts/
 .vscode/launch.json
 !/pm2conf.json
 .vscode/
-build
