@@ -32,7 +32,8 @@ class PackShot extends createjs.Container {
     return TweenMax.to(this.blacked, 1, { alpha: 1,
       onComplete: () => {
         this.alpha = 0;
-      } });
+      },
+    });
   }
 
   setupScene() {
