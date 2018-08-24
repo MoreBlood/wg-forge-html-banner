@@ -1,4 +1,4 @@
-/* global createjs, TweenMax */
+/* global createjs, TweenMax, Power1 */
 import shapes from '../shapes';
 import banner from '../index';
 
