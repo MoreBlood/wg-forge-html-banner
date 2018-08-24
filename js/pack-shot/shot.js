@@ -1,4 +1,4 @@
-/* global createjs, TimelineMax, TweenMax */
+/* global createjs, TimelineMax, TweenMax, Power3, Power1 */
 
 import TankT3485 from '../pack-shot/tank_t34-85';
 import shapes from '../shapes';
@@ -62,7 +62,18 @@ class PackShot extends createjs.Container {
     this.tank.scale = 0.9;
     this.tank.rotation = -0.5;
 
-    const tankTween = TweenMax.to(this.tank, 2, { y: this.tank.y - 25, x: this.tank.x - 55, scale: 1, delay: 1, onComplete: () => this.tank.stopAnimation(), ease: Power1.easeInOut });
+    const tankTween = TweenMax.to(
+      this.tank,
+      2,
+      {
+        y: this.tank.y - 25,
+        x: this.tank.x - 55,
+        scale: 1,
+        delay: 1,
+        onComplete: () => this.tank.stopAnimation(),
+        ease: Power1.easeInOut,
+      });
+
     this.tank.timeline.add(tankTween, 0);
 
     // smokes at foreground
