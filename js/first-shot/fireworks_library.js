@@ -1,41 +1,95 @@
 /* global createjs */
+import { random } from '../utils';
 
-class Scene extends createjs.Container {
-  constructor() {
-    super();
-    this.fireworks = [];
-    this.particles = [];
+class Particle {
+  constructor(settings = {
+    x: 0,
+    y: 0,
+    hue: 0,
+    partSpeed: 1,
+    partSpeedVariance: 6,
+    partWind: 50,
+    partFriction: 9,
+    partGravity: 0.3,
+    hueVariance: 30,
+    lineWidth: 1,
+  }) {
+    this.x = settings.x;
+    this.y = settings.y;
+    this.coordLast = [
+      { x: this.x, y: this.y },
+      { x: this.x, y: this.y },
+      { x: this.x, y: this.y },
+    ];
+    this.angle = random(0, 360);
+    this.speed = random(((settings.partSpeed - settings.partSpeedVariance) <= 0) ? 1 : settings.partSpeed - settings.partSpeedVariance, (settings.partSpeed + settings.partSpeedVariance));
+    this.friction = 1 - (settings.partFriction / 100);
+    this.gravity = settings.partGravity / 2;
+    this.hue = random(settings.hue - settings.hueVariance, settings.hue + settings.hueVariance);
+    this.brightness = random(50, 80);
+    this.alpha = random(40, 100) / 100;
+    this.decay = random(10, 50) / 1000;
+    this.wind = (random(0, settings.partWind) - (settings.partWind / 2)) / 25;
+    this.lineWidth = settings.lineWidth;
+  }
 
-    this.isPaused = false;
-    this.hue = 0;
+  update() {
+    const radians = this.angle * (Math.PI / 180);
+    const vx = Math.cos(radians) * this.speed;
+    const vy = Math.sin(radians) * this.speed;
+    this.speed *= this.friction;
+
+    this.coordLast[2].x = this.coordLast[1].x;
+    this.coordLast[2].y = this.coordLast[1].y;
+    this.coordLast[1].x = this.coordLast[0].x;
+    this.coordLast[1].y = this.coordLast[0].y;
+    this.coordLast[0].x = this.x;
+    this.coordLast[0].y = this.y;
+
+    this.x += vx;
+    this.y += vy;
+    this.y += this.gravity;
+
+    this.angle += this.wind;
+    this.alpha -= this.decay;
+
+    if (this.alpha < 0.05) {
+      return true;
+    }
+    return false;
   }
-  shoot(fx, fy, tx, ty, hue) {
-    this.hue = hue;
-    this.fireworks.push(new Firework(fx, fy, tx, ty, this.fireworks, this.particles, this.hue));
-  }
-  pause() {
-    this.isPaused = true;
-  }
+
   draw(ctx) {
-    super.draw(ctx);
+    const coordRand = (random(1, 3) - 1);
+    ctx.beginPath();
+    ctx.moveTo(Math.round(this.coordLast[coordRand].x), Math.round(this.coordLast[coordRand].y));
+    ctx.lineTo(Math.round(this.x), Math.round(this.y));
+    ctx.closePath();
+    ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+    ctx.stroke();
 
-    this.fireworks.forEach((firework, i) => {
-      firework.draw(ctx);
-      if (this.isPaused) return;
-      firework.update(i);
-    });
-    this.particles.forEach((particle, i) => {
-      particle.draw(ctx);
-      if (this.isPaused) return;
-      particle.update(i);
-    });
+    if (this.flickerDensity > 0) {
+      const inverseDensity = 50 - this.flickerDensity;
+      if (random(0, inverseDensity) === inverseDensity) {
+        ctx.beginPath();
+        ctx.arc(Math.round(this.x), Math.round(this.y), random(this.lineWidth, this.lineWidth + 3) / 2, 0, Math.PI * 2, false);
+        ctx.closePath();
+        const randAlpha = random(50, 100) / 100;
+        ctx.fillStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${randAlpha})`;
+        ctx.fill();
+      }
+    }
   }
 }
 
-
-class Fireworks {
-
+class Firework {
   constructor(settings = {
+    startX: 0,
+    startY: 0,
+    targetX: 0,
+    targetY: 0,
+    hitX: 0,
+    hitY: 0,
     partCount: 250,
     currentHue: 30,
     partSpeed: 1,
@@ -43,8 +97,6 @@ class Fireworks {
     partWind: 50,
     partFriction: 9,
     partGravity: 0.3,
-    hueMin: 0,
-    hueMax: 360,
     rocketSpeed: 0.4,
     rocketAccel: 10,
     hueVariance: 30,
@@ -52,237 +104,174 @@ class Fireworks {
     clearAlpha: 15,
     lineWidth: 1,
   }) {
+    this.startX = settings.startX;
+    this.startY = settings.startY;
+    this.hitX = settings.hitX;
+    this.hitY = settings.hitY;
+    this.coordLast = settings.coordLast;
+    this.partCount = settings.partCount;
+    this.currentHue = settings.currentHue;
+    this.partSpeed = settings.partSpeed;
+    this.partSpeedVariance = settings.this.partSpeedVariance;
+    this.partWind = settings.partWind;
+    this.partFriction = settings.this.partFriction;
+    this.partGravity = settings.partGravity;
+    this.rocketSpeed = settings.rocketSpeed;
+    this.rocketAccel = settings.rocketAccel;
+    this.hueVariance = settings.hueVariance;
+    this.flickerDensity = settings.flickerDensity;
+    this.clearAlpha = settings.clearAlpha;
+    this.lineWidth = settings.lineWidth;
 
+    this.particles = [];
   }
-  function fwInit() {
-    particles = [];
-    // кол-во разлетающихся частиц
-    partCount = 250;
-    fireworks = [];
-    // стартовый цвет
-    currentHue = 30;
-    // скорость разлета частиц: боьше скорость - больше радиус разлета
-    partSpeed = 1;
-    // разница в скорости разлета
-    partSpeedVariance = 6;
-    // кривизна сноса частиц
-    partWind = 50;
-    // торможение частиц
-    partFriction = 9;
-    // гравитация, при + опускание вниз, при - поднятие вверх
-    partGravity = 0.3;
-    // цветовая шкала hue , при одинаковых значениях - один цвет
-    hueMin = 0;
-    hueMax = 360;
-    // скорость взлета ракеты
-    rocketSpeed = 0.4;
-    // ускорение взлета ракеты
-    rocketAccel = 10;
-    // разбежка цвета
-    hueVariance = 30;
-    // яркость фликера после разлета частиц
-    flickerDensity = 25;
-    // длительность затухания
-    clearAlpha = 15;
-    // толщина линии фейерверка
-    lineWidth = 1;
+
+  createParticles(x, y, hue) {
+    for (let countdown = this.partCount; countdown > 0; countdown -= 1) {
+      const newParticle = new Particle({
+        x,
+        y,
+        hue: random(hue - this.hueVariance, hue + this.hueVariance),
+        partSpeed: this.partSpeed,
+        partSpeedVariance: this.partSpeedVariance,
+        partWind: this.partWind,
+        partFriction: this.partFriction,
+        partGravity: this.partGravity,
+        hueVariance: this.hueVariance,
+        lineWidth: this.lineWidth,
+      });
+      this.particles.push(newParticle);
+    }
   }
-  createParticles = function (x, y, hue) {
-    let countdown = partCount;
-    while (countdown--) {
-      const newParticle =
-			{
-			  x,
-			  y,
-			  coordLast: [
-			    { x, y },
-			    { x, y },
-			    { x, y },
-			  ],
-			  angle: randomization(0, 360),
-			  speed: randomization(((partSpeed - partSpeedVariance) <= 0) ? 1 : partSpeed - partSpeedVariance, (partSpeed + partSpeedVariance)),
-			  friction: 1 - partFriction / 100,
-			  gravity: partGravity / 2,
-			  hue: randomization(hue - hueVariance, hue + hueVariance),
-			  brightness: randomization(50, 80),
-			  alpha: randomization(40, 100) / 100,
-			  decay: randomization(10, 50) / 1000,
-			  wind: (randomization(0, partWind) - (partWind / 2)) / 25,
-			  lineWidth,
-			};
-      particles.push(newParticle);
-    }
-  };
-  updateParticles = function () {
-    let i = particles.length;
-    while (i--) {
-      const p = particles[i];
-      const radians = p.angle * Math.PI / 180;
-        	const vx = Math.cos(radians) * p.speed;
-        	const vy = Math.sin(radians) * p.speed;
-      p.speed *= p.friction;
 
-      p.coordLast[2].x = p.coordLast[1].x;
-      p.coordLast[2].y = p.coordLast[1].y;
-      p.coordLast[1].x = p.coordLast[0].x;
-      p.coordLast[1].y = p.coordLast[0].y;
-      p.coordLast[0].x = p.x;
-      p.coordLast[0].y = p.y;
+  update(ctx) {
+    ctx.lineWidth = this.lineWidth;
 
-      p.x += vx;
-      p.y += vy;
-      p.y += p.gravity;
+    const vx = Math.cos(this.angle) * this.speed;
+    const vy = Math.sin(this.angle) * this.speed;
 
-      p.angle += p.wind;
-      p.alpha -= p.decay;
+    this.speed *= 1 + this.acceleration;
+    this.coordLast[2].x = this.coordLast[1].x;
+    this.coordLast[2].y = this.coordLast[1].y;
+    this.coordLast[1].x = this.coordLast[0].x;
+    this.coordLast[1].y = this.coordLast[0].y;
+    this.coordLast[0].x = this.x;
+    this.coordLast[0].y = this.y;
 
-      if (p.alpha < 0.05) {
-        particles.splice(i, 1);
-      }
-    }
-  };
-
-  drawParticles = function () {
-    let i = particles.length;
-    while (i--) {
-      const p = particles[i];
-
-      const coordRand = (randomization(1, 3) - 1);
-      ctx.beginPath();
-      ctx.moveTo(Math.round(p.coordLast[coordRand].x), Math.round(p.coordLast[coordRand].y));
-      ctx.lineTo(Math.round(p.x), Math.round(p.y));
-      ctx.closePath();
-      ctx.strokeStyle = `hsla(${p.hue}, 100%, ${p.brightness}%, ${p.alpha})`;
-      ctx.stroke();
-
-      if (flickerDensity > 0) {
-        const inverseDensity = 50 - flickerDensity;
-        if (randomization(0, inverseDensity) === inverseDensity) {
-          ctx.beginPath();
-          ctx.arc(Math.round(p.x), Math.round(p.y), randomization(p.lineWidth, p.lineWidth + 3) / 2, 0, Math.PI * 2, false);
-          ctx.closePath();
-          const randAlpha = randomization(50, 100) / 100;
-          ctx.fillStyle = `hsla(${p.hue}, 100%, ${p.brightness}%, ${randAlpha})`;
-          ctx.fill();
-        }
-      }
-    }
-  };
-
-  createFirework = function (startX, startY, targetX, targetY) {
-    currentHue = randomization(hueMin, hueMax);
-    const newFirework =
-		{
-		  x: startX,
-		  y: startY,
-		  startX,
-		  startY,
-		  hitX: false,
-		  hitY: false,
-		  coordLast: [
-		    { x: startX, y: startY },
-		    { x: startX, y: startY },
-		    { x: startX, y: startY },
-		  ],
-		  targetX,
-		  targetY,
-		  speed: rocketSpeed,
-		  angle: Math.atan2(targetY - startY, targetX - startX),
-		  shockwaveAngle: Math.atan2(targetY - startY, targetX - startX) + (90 * (Math.PI / 180)),
-		  acceleration: rocketAccel / 100,
-		  hue: currentHue,
-		  brightness: randomization(50, 80),
-		  alpha: randomization(50, 100) / 100,
-		  lineWidth,
-		};
-    fireworks.push(newFirework);
-  };
-
-  updateFw = function () {
-    let i = fireworks.length;
-    while (i--) {
-      const f = fireworks[i];
-      ctx.lineWidth = f.lineWidth;
-
-      vx = Math.cos(f.angle) * f.speed,
-      vy = Math.sin(f.angle) * f.speed;
-      f.speed *= 1 + f.acceleration;
-      f.coordLast[2].x = f.coordLast[1].x;
-      f.coordLast[2].y = f.coordLast[1].y;
-      f.coordLast[1].x = f.coordLast[0].x;
-      f.coordLast[1].y = f.coordLast[0].y;
-      f.coordLast[0].x = f.x;
-      f.coordLast[0].y = f.y;
-
-      if (f.startX >= f.targetX) {
-        if (f.x + vx <= f.targetX) {
-          f.x = f.targetX;
-          f.hitX = true;
-        } else {
-          f.x += vx;
-        }
-      } else
-      if (f.x + vx >= f.targetX) {
-        f.x = f.targetX;
-        f.hitX = true;
+    if (this.startX >= this.targetX) {
+      if (this.x + vx <= this.targetX) {
+        this.x = this.targetX;
+        this.hitX = true;
       } else {
-        f.x += vx;
+        this.x += vx;
       }
-
-      if (f.startY >= f.targetY) {
-        if (f.y + vy <= f.targetY) {
-          f.y = f.targetY;
-          f.hitY = true;
-        } else {
-          f.y += vy;
-        }
-      } else
-      if (f.y + vy >= f.targetY) {
-        f.y = f.targetY;
-        f.hitY = true;
-      } else {
-        f.y += vy;
-      }
-
-      if (f.hitX && f.hitY) {
-        createParticles(f.targetX, f.targetY, f.hue);
-        fireworks.splice(i, 1);
-      }
+    } else
+    if (this.x + vx >= this.targetX) {
+      this.x = this.targetX;
+      this.hitX = true;
+    } else {
+      this.x += vx;
     }
-  };
 
-  drawFireworks = function () {
-    let i = fireworks.length;
+    if (this.startY >= this.targetY) {
+      if (this.y + vy <= this.targetY) {
+        this.y = this.targetY;
+        this.hitY = true;
+      } else {
+        this.y += vy;
+      }
+    } else
+    if (this.y + vy >= this.targetY) {
+      this.y = this.targetY;
+      this.hitY = true;
+    } else {
+      this.y += vy;
+    }
+
+    if (this.hitX && this.hitY) {
+      this.createParticles(this.targetX, this.targetY, this.hue);
+      return true;
+    }
+    return false;
+  }
+
+  drawFireworks(ctx) {
     ctx.globalCompositeOperation = 'lighter';
-    while (i--) {
-      const f = fireworks[i];
-      ctx.lineWidth = f.lineWidth;
-      const coordRand = (randomization(1, 3) - 1);
-      ctx.beginPath();
-      ctx.moveTo(Math.round(f.coordLast[coordRand].x), Math.round(f.coordLast[coordRand].y));
-      ctx.lineTo(Math.round(f.x), Math.round(f.y));
-      ctx.closePath();
-      // ctx.strokeStyle = 'hsla('+f.hue+', 100%, '+f.brightness+'%, '+f.alpha+')';
-      ctx.strokeStyle = 'white';
-      ctx.stroke();
-    }
-  };
-  //
-  fwInit();
-}
-function updateFireworks() {
-  const ctx = canvasFireworks.getContext('2d');
-  ctx.globalCompositeOperation = 'destination-out';
-  ctx.fillStyle = `rgba(0,0,0,${clearAlpha / 100})`;
-  ctx.fillRect(0, 0, w, h);
-  updateFw();
-  updateParticles();
-  drawFireworks();
-  drawParticles();
+    ctx.lineWidth = this.lineWidth;
+    const coordRand = (random(1, 3) - 1);
+    ctx.beginPath();
+    ctx.moveTo(Math.round(this.coordLast[coordRand].x), Math.round(this.coordLast[coordRand].y));
+    ctx.lineTo(Math.round(this.x), Math.round(this.y));
+    ctx.closePath();
+    // ctx.strokeStyle = 'hsla('+f.hue+', 100%, '+f.brightness+'%, '+f.alpha+')';
+    ctx.strokeStyle = 'white';
+    ctx.stroke();
+
+
+    this.particles.forEach((particle, i) => {
+      particle.draw(ctx);
+      if (particle.update()) {
+        particle.splice(i, 1);
+      }
+    });
+  }
 }
 
-randomization = function (rA, rB) {
-  // return ~~((Math.random()*(rB-rA+1))+rA);
-  return Math.floor((Math.random() * (rB - rA + 1)) + rA);
-};
+class Scene extends createjs.Container {
+  constructor(settings = {
+    hueMin: 0,
+    hueMax: 360,
+    clearAlpha: 0.15,
+  }) {
+    super();
+    this.fireworks = [];
+    this.particles = [];
+    this.clearAlpha = settings.clearAlpha;
+    this.hueMin = settings.hueMin;
+    this.hueMax = settings.hueMax;
+
+    this.currentHue = 0;
+  }
+
+  draw(ctx) {
+    super.draw(ctx);
+
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = `rgba(0,0,0,${this.clearAlpha / 100})`;
+    // ctx.fillRect(0, 0, w, h);
+
+    this.fireworks.forEach((firework, i) => {
+      firework.draw(ctx);
+      if (firework.update()) {
+        this.fireworks.splice(i, 1);
+      }
+    });
+  }
+
+  createFirework(startX, startY, targetX, targetY) {
+    this.currentHue = random(this.hueMin, this.hueMax);
+    const newFirework = new Firework({
+      startX,
+      startY,
+      hitX: false,
+      hitY: false,
+      coordLast: [
+        { x: startX, y: startY },
+        { x: startX, y: startY },
+        { x: startX, y: startY },
+      ],
+      targetX,
+      targetY,
+      speed: this.rocketSpeed,
+      angle: Math.atan2(targetY - startY, targetX - startX),
+      shockwaveAngle: Math.atan2(targetY - startY, targetX - startX) + (90 * (Math.PI / 180)),
+      acceleration: this.rocketAccel / 100,
+      hue: this.currentHue,
+      brightness: random(50, 80),
+      alpha: random(50, 100) / 100,
+      lineWidth: this.lineWidth,
+    });
+    this.fireworks.push(newFirework);
+  }
+}
 
