@@ -1,6 +1,6 @@
 /* global createjs, TweenMax, TimelineMax  */
 import shapes from '../shapes';
-import banner from '../index';
+import { banner } from '../index';
 
 
 class Explosion extends createjs.Container {

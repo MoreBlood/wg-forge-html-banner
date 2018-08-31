@@ -1,6 +1,6 @@
 /* globals createjs */
 import shapes from '../shapes';
-import banner from '../index';
+import { banner } from '../index';
 
 class TracksPackShot extends createjs.Container {
   constructor() {

@@ -1,6 +1,6 @@
-/* globals createjs, TweenMax, TimelineMax */
+/* globals createjs, Linear, TimelineMax */
 import shapes from '../shapes';
-import banner from '../index';
+import { banner } from '../index';
 
 class Tracks extends createjs.Container {
   constructor() {

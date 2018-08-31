@@ -2,7 +2,7 @@
 
 import shapes from '../shapes';
 import { random } from '../utils';
-import banner from '../index';
+import { banner } from '../index';
 
 
 class Smoke extends createjs.Container {

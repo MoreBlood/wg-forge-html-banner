@@ -39,6 +39,11 @@ module.exports = {
         to: 'assets',
         toType: 'dir',
       },
+      {
+        from: 'scripts/',
+        to: 'scripts',
+        toType: 'dir',
+      },
     ]),
   ],
   devServer: {

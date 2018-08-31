@@ -5,7 +5,7 @@ export const random = (min, max) => (Math.random() * (max - min)) + min;
 export const calculateDistance = (p1x, p1y, p2x, p2y) => {
   const xDistance = p1x - p2x;
   const yDistance = p1y - p2y;
-  return Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+  return Math.sqrt((xDistance * xDistance) + (yDistance * yDistance));
 };
 
 /* eslint no-restricted-syntax: ["error", "FunctionExpression", "WithStatement", "BinaryExpression[operator='in']"] */
@@ -39,4 +39,15 @@ const loadImages = images => Promise.all(images.map(image => preloadImage(image)
 export const preload = () => {
   const allShapes = callGetAllValues(shapes);
   return loadImages(allShapes);
+};
+
+
+window.trueAlpha = (alpha) => {
+  if (alpha > 1) {
+    return 1;
+  } else if (alpha < 0) {
+    return 0;
+  }
+
+  return Math.round(alpha * 100) / 100;
 };

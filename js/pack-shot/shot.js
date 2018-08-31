@@ -3,10 +3,10 @@
 import TankT3485 from '../pack-shot/tank_t34-85';
 import shapes from '../shapes';
 import Smoke from '../first-shot/smoke';
-import Firework from '../first-shot/fireworks';
 import { random } from '../utils';
-import Button from '../pack-shot/button';
-import banner from '../index';
+import ButtonPlay from '../pack-shot/button';
+import { banner, fireworks } from '../index';
+import ChargeTextPackShot from './text';
 
 class PackShot extends createjs.Container {
   constructor() {
@@ -32,6 +32,7 @@ class PackShot extends createjs.Container {
     return TweenMax.to(this.blacked, 1, { alpha: 1,
       onComplete: () => {
         this.alpha = 0;
+        ButtonPlay.hideButton();
       },
     });
   }
@@ -42,8 +43,16 @@ class PackShot extends createjs.Container {
     this.treeRight = new createjs.Bitmap(banner.images[shapes.shots.first.treeRight]);
 
 
-    this.firework = new Firework();
-    this.addChild(this.firework);
+    this.firework = fireworks.fireworks;
+    this.background = new createjs.Bitmap(shapes.shots.first.backgroud);
+    this.background.x = -120;
+    this.background.y = -120;
+    this.addChild(this.background);
+
+    this.fireworksCanvas = new createjs.Bitmap(fireworks.canvas);
+    this.fireworksCanvas.x = 0;
+    this.fireworksCanvas.y = -60;
+    this.addChild(this.fireworksCanvas);
 
     // bg big smoke
     const smoke0 = new Smoke(0.2);
@@ -108,11 +117,11 @@ class PackShot extends createjs.Container {
     for (let i = 0; i < number; i += 1) {
       setTimeout(() => {
         const hue = random(0, 360);
-        this.firework.shoot(
-          random(160, 170),
-          random(170, 180),
-          random(40, 300),
-          random(50, 60),
+        this.firework.createFirework(
+          random(150, 160),
+          random(200, 300),
+          random(50, 250),
+          random(80, 160),
           hue);
         this.tank.blink(hue);
       },
@@ -121,19 +130,15 @@ class PackShot extends createjs.Container {
   }
 
   setupButton() {
-    this.button = new Button();
-
-    this.button.x = 168;
-    this.button.y = 249;
+    this.button = new ButtonPlay();
 
     this.addChild(this.button);
-
-    this.showButton = this.button.showButton;
+    // this.showButton = this.button.showButton;
   }
 
   setupText() {
     this.greeting = new createjs.Bitmap(banner.images[shapes.shots.pack.greeting]);
-    this.enjoy = new createjs.Bitmap(banner.images[shapes.shots.pack.enjoy]);
+    this.enjoy = new ChargeTextPackShot();
 
     this.greeting.x = 168;
     this.greeting.regX = 126.5;
@@ -160,9 +165,12 @@ class PackShot extends createjs.Container {
 
     const timeline = new TimelineMax();
 
+    
+    TweenMax.delayedCall(2, () => ButtonPlay.showButton());
+
     timeline
       .to(this.enjoy, 0.5, { alpha: 1, scaleX: 1, scaleY: 1, delay: 1.5, ease: Power3.easeOut })
-      .add(this.showButton)
+      // .add(this.showButton)
       .add(showGreeting)
       .to(this.enjoy, 0.5, { alpha: 0, scaleX: 0, scaleY: 0, ease: Power3.easeOut }, '-=0.5');
   }

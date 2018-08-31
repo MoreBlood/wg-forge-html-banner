@@ -4,14 +4,23 @@ import TankT34 from '../first-shot/tank_t34';
 import shapes from '../shapes';
 import Smoke from '../first-shot/smoke';
 import Explosion from '../first-shot/explosion';
-import Firework from '../first-shot/fireworks';
+import Firework from '../first-shot/fireworks/scene';
 import { random } from '../utils';
-import banner from '../index';
+import { banner, fireworks } from '../index';
 
 class MainShot extends createjs.Container {
   constructor() {
     super();
     this.timeline = new TimelineMax({ loop: true, yoyo: true });
+    this.background = new createjs.Bitmap(shapes.shots.first.backgroud);
+    this.background.x = -120;
+    this.background.y = -120;
+    this.addChild(this.background);
+
+    this.fireworksCanvas = new createjs.Bitmap(fireworks.canvas);
+    this.fireworksCanvas.x = 120;
+    this.fireworksCanvas.y = -120;
+    this.addChild(this.fireworksCanvas);
 
 
     this.blacked = new createjs.Shape();
@@ -33,6 +42,10 @@ class MainShot extends createjs.Container {
   hide() {
     return TweenMax.to(this.blacked, 1, { alpha: 1 });
   }
+  
+  draw(ctx) { 
+    super.draw(ctx);
+  }
 
   setupScene() {
     this.hill = new createjs.Bitmap(banner.images[shapes.shots.first.hill]);
@@ -41,8 +54,8 @@ class MainShot extends createjs.Container {
     this.treeRight = new createjs.Bitmap(banner.images[shapes.shots.first.treeRight]);
 
 
-    this.firework = new Firework();
-    this.addChild(this.firework);
+    this.firework = fireworks.fireworks;
+    // this.addChild(this.firework);
 
     // bg big smoke
     const smoke0 = new Smoke(0.2);
@@ -121,11 +134,11 @@ class MainShot extends createjs.Container {
     for (let i = 0; i < number; i += 1) {
       setTimeout(() => {
         const hue = random(0, 360);
-        this.firework.shoot(
-          random(200, 250),
+        this.firework.createFirework(
+          random(100, 150),
           random(200, 300),
-          random(250, 400),
-          random(50, -20),
+          random(150, 300),
+          random(50, 150),
           hue);
         this.tank.blink(hue);
       },

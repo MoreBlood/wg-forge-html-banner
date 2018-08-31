@@ -1,7 +1,7 @@
 /* globals createjs, TimelineMax, TweenMax */
 import shapes from '../shapes';
 import Track from '../first-shot/tracks';
-import banner from '../index';
+import { banner } from '../index';
 
 class MovingParts extends createjs.Container {
   constructor() {

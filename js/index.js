@@ -1,20 +1,25 @@
-/* global createjs, TweenMax, TimelineMax */
+/* global createjs, TweenMax, TimelineMax, loadFonts */
 import MainShot from './first-shot/shot';
 import PackShot from './pack-shot/shot';
 import shapes from './shapes';
 import Shell from './first-shot/shell';
-import { preload } from './utils';
+import { preload, random } from './utils';
+import ChargeText from './first-shot/text';
+import Scene from './first-shot/fireworks/scene';
 
 class Banner extends createjs.Stage {
   constructor(canvas) {
     super(canvas);
     this.enableMouseOver(20);
+    // this.autoClear = false;
 
     createjs.Ticker.framerate = 60;
     createjs.Ticker.addEventListener('tick', this);
 
+    this.cursor = 'pointer';
+
     setInterval(() => {
-      console.log(createjs.Ticker.getMeasuredFPS(1));
+      // console.log(createjs.Ticker.getMeasuredFPS(1));
     }, 1000);
   }
 
@@ -41,7 +46,7 @@ class Banner extends createjs.Stage {
 
   addShellAndText() {
     // text
-    this.enjoy = this.enjoy || new createjs.Bitmap(this.images[shapes.shots.first.enjoy]);
+    this.enjoy = this.enjoy || new ChargeText();
     this.addChild(this.enjoy);
 
     // shell
@@ -94,7 +99,36 @@ class Banner extends createjs.Stage {
       });
   }
 }
-const banner = new Banner('ad');
+
+class Fireworks extends createjs.Stage {
+  constructor(canvas) {
+    super(canvas);
+    createjs.Ticker.addEventListener('tick', this);
+    this.fireworks = new Scene();
+    this.addChild(this.fireworks);
+    this.autoClear = false;
+    this.canvas.width = 1000;
+    this.canvas.height = 1000;
+  }
+}
+
+
+export const banner = new Banner('ad');
+export const fireworks = new Fireworks(document.createElement('canvas'));
+
+
+window.start = () => {
+  window.w = banner.canvas.width;
+  banner.load();
+};
+
+window.getMousePos = (e) => {
+  const rect = banner.canvas.getBoundingClientRect();
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top,
+  };
+};
 
 preload()
   .then((images) => {
@@ -102,7 +136,7 @@ preload()
     for (let i = 0; i < images.length; i += 1) {
       banner.images[images[i].url] = images[i].image;
     }
-    banner.load();
+    loadFonts();
   });
 
-export { banner as default };
+// export { banner as default };

@@ -3,7 +3,7 @@
 import shapes from '../shapes';
 import Smoke from '../first-shot/smoke';
 import MovingParts from '../first-shot/moving_parts';
-import banner from '../index';
+import { banner } from '../index';
 
 class TankT34 extends createjs.Container {
   constructor() {

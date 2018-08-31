@@ -21,6 +21,7 @@ const shapes = {
       shellFill: './assets/1st_shot/shell_fill.png',
       enjoy: './assets/1st_shot/enjoy.png',
       pointer: './assets/1st_shot/pointer.png',
+      directionPointer: './assets/1st_shot/direction_pointer.png',
       explosion: {
         end: './assets/1st_shot/explosion/explosion_end.png',
         smoke: './assets/1st_shot/explosion/shot_smoke.png',
@@ -36,6 +37,7 @@ const shapes = {
       tankLight: './assets/pack_shot/tank_packshot_light.png',
       enjoy: './assets/pack_shot/enjoy.png',
       button: './assets/pack_shot/play_button.png',
+      playButton: './assets/pack_shot/Button.jpg',
       greeting: './assets/pack_shot/23.png',
       track: './assets/pack_shot/track.png',
     },

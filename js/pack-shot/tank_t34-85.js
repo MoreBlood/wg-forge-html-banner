@@ -1,7 +1,7 @@
 /* globals createjs, TimelineMax */
 import shapes from '../shapes';
 import TracksPackShot from './tracks';
-import banner from '../index';
+import { banner } from '../index';
 
 
 class TankT3485 extends createjs.Container {
