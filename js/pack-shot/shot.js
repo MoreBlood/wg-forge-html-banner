@@ -115,7 +115,7 @@ class PackShot extends createjs.Container {
 
   expodeFireworks(number) {
     for (let i = 0; i < number; i += 1) {
-      setTimeout(() => {
+      TweenMax.delayedCall((300 + (i * 500) + random(0, 250)) / 1000, () => {
         const hue = random(0, 360);
         this.firework.createFirework(
           random(150, 160),
@@ -124,8 +124,7 @@ class PackShot extends createjs.Container {
           random(80, 160),
           hue);
         this.tank.blink(hue);
-      },
-      300 + (i * 500) + random(0, 250));
+      });
     }
   }
 

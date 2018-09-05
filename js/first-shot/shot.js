@@ -114,6 +114,7 @@ class MainShot extends createjs.Container {
     this.hillLight.y = 144;
     this.hillLight.x = 4;
     this.hillLight.alpha = 0;
+    this.hillLight.compositeOperation = 'screen';
 
     this.addChild(this.treeLeft);
     this.treeLeft.y = 250;
@@ -132,7 +133,7 @@ class MainShot extends createjs.Container {
 
   expodeFireworks(number) {
     for (let i = 0; i < number; i += 1) {
-      setTimeout(() => {
+      TweenMax.delayedCall((300 + (i * 500) + random(0, 250)) / 1000, () => {
         const hue = random(0, 360);
         this.firework.createFirework(
           random(100, 150),
@@ -141,8 +142,7 @@ class MainShot extends createjs.Container {
           random(50, 150),
           hue);
         this.tank.blink(hue);
-      },
-      300 + (i * 500) + random(0, 250));
+      });
     }
   }
 

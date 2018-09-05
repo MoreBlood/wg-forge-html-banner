@@ -1,14 +1,14 @@
 {
     "compilerOptions": {
-        "target": "esnext"
+        "target": "es2018"
     },
     "include": [
-        "node_modules/easeljs/lib/*",
-        "node_modules/tweenjs/lib/*",
-        "js/*"
+        "lib/**/*",
+        "js/**/*",
+        "scripts/**/*"
     ],
     "exclude": [
-      "lib/*",
-      "build/*"
+        "build",
+        "node_modules"
     ]
 }

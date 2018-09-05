@@ -38,8 +38,9 @@ class Banner extends createjs.Stage {
 
   addLogo() {
     this.wotLogo = this.wotLogo || new createjs.Bitmap(this.images[shapes.shots.first.wotLogo]);
-    this.wotLogo.y = 0;
+    this.wotLogo.y = 10;
     this.wotLogo.x = 60;
+    this.wotLogo.shadow = new createjs.Shadow('black', 0, 0, 10);
 
     this.addChild(this.wotLogo);
   }

@@ -55,6 +55,7 @@ class TankT34 extends createjs.Container {
     this.tankLight = new createjs.Bitmap(banner.images[shapes.shots.first.tankLight]);
     this.tankLight.x = 10;
     this.tankLight.alpha = 0;
+    this.tankLight.compositeOperation = 'screen';
     this.addChild(this.tankLight);
   }
 

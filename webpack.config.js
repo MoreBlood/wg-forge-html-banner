@@ -10,7 +10,9 @@ module.exports = {
   },
   optimization: {
     minimizer: [
-      new UglifyJsPlugin(),
+      new UglifyJsPlugin({
+        test: /\.js($|\?)/i,
+      }),
     ],
   },
   mode: 'production',
@@ -44,12 +46,17 @@ module.exports = {
         to: 'scripts',
         toType: 'dir',
       },
+      {
+        from: 'images/',
+        to: 'images',
+        toType: 'dir',
+      },
     ]),
   ],
   devServer: {
     contentBase: path.join(__dirname, 'build'),
     compress: true,
-    port: 9000,
+    port: 9001,
   },
   stats: {
     colors: true,

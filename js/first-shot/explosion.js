@@ -10,26 +10,21 @@ class Explosion extends createjs.Container {
     const middle = new createjs.Bitmap(banner.images[shapes.shots.first.explosion.middle]);
     const end = new createjs.Bitmap(banner.images[shapes.shots.first.explosion.end]);
     const smoke = new createjs.Bitmap(banner.images[shapes.shots.first.explosion.smoke]);
-    const sparks = new createjs.Bitmap(banner.images[shapes.shots.first.explosion.sparks]);
     const trail = new createjs.Bitmap(banner.images[shapes.shots.first.explosion.trail]);
 
     trail.setTransform(-9, 15, 1, 1, -28, 0, 0, 7, 3);
     smoke.setTransform(0, 15, 0.3, 0.3, 13, 0, 0, 27, 107);
-    sparks.setTransform(20, 20, 1, 1, 0, 0, 0, 165, 100);
     start.setTransform(0, 0, 0.1, 0.1, 0, 0, 0, 40, 100);
     end.setTransform(-10, 47, 0.1, 0.1, 0, 0, 0, 52, 80);
     middle.setTransform(-5, 23, 0.1, 0.1, 0, 0, 0, 36, 41);
 
-    sparks.compositeOperation = 'screen';
-
-    sparks.alpha = 0;
     smoke.alpha = 0;
     start.alpha = 0;
     end.alpha = 0;
     middle.alpha = 0;
     trail.alpha = 0;
 
-    [smoke, end, middle, start, trail, sparks].forEach(elem => this.addChild(elem));
+    [smoke, end, middle, start, trail].forEach(elem => this.addChild(elem));
 
     const explosion = [end, middle, start, trail];
 
@@ -53,9 +48,6 @@ class Explosion extends createjs.Container {
         new TimelineMax()
           .to(smoke, 0.5, { alpha: 0.7 })
           .to(smoke, 9.5, { x: smoke.x + 30, y: smoke.y - 40, scaleX: 1.7, scaleY: 1.7, alpha: 0 }),
-        new TimelineMax()
-          .to(sparks, 0.5, { scaleX: 1, scaleY: 1, alpha: 1 })
-          .to(sparks, 0.1, { alpha: 0, delay: 0.15 }),
         new TimelineMax()
           .to(middle, 0.5, { scaleX: 1, scaleY: 1, x: 17, y: -5, alpha: 1, delay: 0.2 })
           .to(middle, 0.5, { scaleX: 0.8, scaleY: 0.8, alpha: 0, delay: 0.15 }),
